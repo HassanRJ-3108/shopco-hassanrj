@@ -80,7 +80,7 @@ Follow these steps to get the project up and running on your local machine:
 
 1. **Clone the Repository**  
    ```bash
-   git clone https://github.com/your-username/shop-co.git
+   git clone https://github.com/Hassan3108huzaifa/shopco-hassanrj.git
    ```
 
 2. **Navigate to the Project Directory**  

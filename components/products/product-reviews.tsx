@@ -7,6 +7,7 @@ import { satoshi } from '@/app/ui/fonts'
 import * as Tabs from '@radix-ui/react-tabs'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 
+
 interface Review {
   id: string
   author: string
@@ -72,6 +73,7 @@ function StarRating({ rating }: { rating: number }) {
     </div>
   )
 }
+// StarRating component and reviews array are unchanged
 
 export function ProductReviews() {
   const [activeTab, setActiveTab] = useState('reviews')
@@ -114,6 +116,14 @@ export function ProductReviews() {
             FAQs
           </Tabs.Trigger>
         </Tabs.List>
+
+        <Tabs.Content value="details" className="pt-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+            <h2 className={cn("text-lg font-medium", satoshi.className)}>
+              Product Details Not available yet 😊
+            </h2>
+          </div>
+        </Tabs.Content>
 
         <Tabs.Content value="reviews" className="pt-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
@@ -192,8 +202,15 @@ export function ProductReviews() {
             Load More Reviews
           </button>
         </Tabs.Content>
+
+        <Tabs.Content value="faqs" className="pt-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+            <h2 className={cn("text-lg font-medium", satoshi.className)}>
+              FAQS Not Available yet 😊
+            </h2>
+          </div>
+        </Tabs.Content>
       </Tabs.Root>
     </div>
   )
 }
-

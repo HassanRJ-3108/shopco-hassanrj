@@ -111,7 +111,6 @@ const products = [
     image: '/products/faded-jeans.png',
     discount: 22
   },
-  // Add more products...
 ]
 
 const sortOptions = [
@@ -219,7 +218,7 @@ export function ProductGrid() {
                   key={i}
                   className={cn(
                     "px-3 py-1 sm:px-4 sm:py-2 rounded-lg transition-colors text-sm sm:text-base",
-                    page === 1 
+                    page === 2
                       ? "bg-black text-white" 
                       : "hover:bg-gray-100"
                   )}

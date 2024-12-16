@@ -3,9 +3,28 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronRight, Minus, Plus, Star } from 'lucide-react'
+import { ChevronRight, Minus, Plus, Star, StarHalf } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { satoshi, integralCF } from '@/app/ui/fonts'
+
+
+function StarRating({ rating }: { rating: number }) {
+  const fullStars = Math.floor(rating)
+  const hasHalfStar = rating % 1 !== 0
+
+  return (
+    <div className="flex items-center gap-0.5">
+      {[...Array(fullStars)].map((_, i) => (
+        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+      ))}
+      {hasHalfStar && <StarHalf className="h-4 w-4 fill-yellow-400 text-yellow-400" />}
+      {[...Array(5 - Math.ceil(rating))].map((_, i) => (
+        <Star key={i} className="h-4 w-4 text-gray-300" />
+      ))}
+      <span className="ml-1 text-sm text-gray-600">{rating}/5</span>
+    </div>
+  )
+}
 
 interface Product {
   id: string
@@ -61,6 +80,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 className="w-full h-full object-cover"
               />
             </div>
+
             <div className="grid grid-cols-3 gap-4">
               {product.images.map((image, index) => (
                 <button
@@ -87,21 +107,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
           <div className="mt-8 lg:mt-0">
             <h1 className={cn("text-3xl font-bold", integralCF.className)}>
               {product.title}
-            </h1>
-            
+            </h1> 
+
             <div className="mt-4 flex items-center gap-2">
               <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={cn(
-                      "h-5 w-5",
-                      i < Math.floor(product.rating)
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "fill-gray-200 text-gray-200"
-                    )}
-                  />
-                ))}
+                <StarRating rating={product.rating} />
               </div>
               <span className="text-sm text-gray-500">
                 {product.rating}/5 ({product.reviews} Reviews)

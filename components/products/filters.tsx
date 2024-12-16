@@ -7,6 +7,7 @@ import { satoshi } from '@/app/ui/fonts'
 import * as Accordion from '@radix-ui/react-accordion'
 import * as Slider from '@radix-ui/react-slider'
 
+// Define constants for filter options
 const categories = ['T-shirts', 'Shorts', 'Shirts', 'Hoodie', 'Jeans']
 const colors = [
   { name: 'Green', class: 'bg-green-500' },
@@ -21,6 +22,7 @@ const colors = [
 const sizes = ['XX-Small', 'X-Small', 'Small', 'Medium', 'Large', 'X-Large', '2X-Large', '3X-Large', '4X-Large']
 const styles = ['Casual', 'Formal', 'Party', 'Gym']
 
+// Define props interface for the Filters component
 interface FiltersProps {
   isMobile?: boolean
   isOpen?: boolean
@@ -28,30 +30,43 @@ interface FiltersProps {
 }
 
 export function Filters({ isMobile, isOpen, onClose }: FiltersProps) {
+  // State for price range and selected size
   const [priceRange, setPriceRange] = useState([50, 200])
-  const [selectedSize, setSelectedSize] = useState('Large')
+  const [selectedSize, setSelectedSize] = useState('Small')
 
+  // Function to handle filter application
+  const handleApplyFilter = () => {
+    // TODO: Implement filter application logic
+    console.log('Applying filters:', { priceRange, selectedSize })
+    onClose?.()
+  }
+
+  // Main content of the filter component
   const filterContent = (
     <div className={cn(
       "flex flex-col h-full",
       isMobile ? "bg-white" : ""
     )}>
+      {/* Mobile header */}
       {isMobile && (
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className={cn("text-xl font-medium", satoshi.className)}>Filters</h2>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full"
+            aria-label="Close filters"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
       )}
 
+      {/* Scrollable filter options */}
       <div className={cn(
         "flex-1 overflow-auto",
         isMobile ? "p-4" : ""
       )}>
+        {/* Categories accordion */}
         <Accordion.Root type="multiple" className="space-y-4">
           {categories.map((category) => (
             <Accordion.Item key={category} value={category} className="border-b pb-4">
@@ -65,13 +80,16 @@ export function Filters({ isMobile, isOpen, onClose }: FiltersProps) {
                     <input type="checkbox" className="rounded border-gray-300" />
                     <span className="text-sm">Subcategory 1</span>
                   </label>
+                  {/* Add more subcategories as needed */}
                 </div>
               </Accordion.Content>
             </Accordion.Item>
           ))}
         </Accordion.Root>
 
+        {/* Other filter options */}
         <div className="space-y-6 mt-6">
+          {/* Price range slider */}
           <div className="space-y-4">
             <h3 className={cn("font-medium", satoshi.className)}>Price</h3>
             <Slider.Root
@@ -93,6 +111,7 @@ export function Filters({ isMobile, isOpen, onClose }: FiltersProps) {
             </div>
           </div>
 
+          {/* Color options */}
           <div className="space-y-4">
             <h3 className={cn("font-medium", satoshi.className)}>Colors</h3>
             <div className="grid grid-cols-5 gap-3">
@@ -109,6 +128,7 @@ export function Filters({ isMobile, isOpen, onClose }: FiltersProps) {
             </div>
           </div>
 
+          {/* Size options */}
           <div className="space-y-4">
             <h3 className={cn("font-medium", satoshi.className)}>Size</h3>
             <div className="grid grid-cols-3 gap-2">
@@ -129,6 +149,7 @@ export function Filters({ isMobile, isOpen, onClose }: FiltersProps) {
             </div>
           </div>
 
+          {/* Dress style options */}
           <div className="space-y-4">
             <h3 className={cn("font-medium", satoshi.className)}>Dress Style</h3>
             {styles.map((style) => (
@@ -141,19 +162,19 @@ export function Filters({ isMobile, isOpen, onClose }: FiltersProps) {
         </div>
       </div>
 
-      {isMobile && (
-        <div className="p-4 border-t bg-white">
-          <button
-            onClick={onClose}
-            className="w-full py-4 bg-black text-white rounded-full hover:bg-gray-900 transition-colors"
-          >
-            Apply Filter
-          </button>
-        </div>
-      )}
+      {/* Apply filter button */}
+      <div className="p-4 border-t bg-white">
+        <button
+          onClick={handleApplyFilter}
+          className="w-full py-4 bg-black text-white rounded-full hover:bg-gray-900 transition-colors"
+        >
+          Apply Filter
+        </button>
+      </div>
     </div>
   )
 
+  // Render mobile or desktop version based on isMobile prop
   if (isMobile) {
     return (
       <div

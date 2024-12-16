@@ -10,7 +10,7 @@ export const products = [
       images: [
           '/products/gradient.png',
           '/products/gradient.png',
-          '/products/gradient.png'
+          '/products/polo.png'
       ],
       colors: [
           { name: 'Olive', value: '#4B5320' },

@@ -19,10 +19,6 @@ export const metadata: Metadata = {
     siteName: 'SHOP.CO',
   },
 
-  robots: 'index, follow',
-  alternates: {
-    canonical: 'https://www.shopco-hassanrj.vercel.app',
-  },
 }
 
 export default function Home() {

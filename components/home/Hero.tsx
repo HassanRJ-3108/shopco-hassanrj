@@ -10,7 +10,7 @@ export function Hero() {
         {/* Left Content */}
         <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 lg:px-20 py-12 lg:py-20">
           <h1 className={cn(
-            "text-[38px] md:text-[56px] lg:text-[58px] font-bold leading-[1.1]",
+            "text-[38px] md:text-[50px] lg:text-[56px] font-bold leading-[1.1]",
             integralCF.className
           )}>
             FIND CLOTHES THAT MATCHES YOUR STYLE

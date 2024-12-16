@@ -100,12 +100,12 @@ export default function Footer() {
             <p className="mt-4 text-sm text-gray-600">
               We have clothes that suits your style and which you&apos;re proud to wear. From women to men.
             </p>
-            <div className="mt-6 flex gap-4">
+            <div className="mt-6 flex gap-2 md:gap-4">
               {socialLinks.map((social) => (
                 <Link
                   key={social.name}
                   href={social.href}
-                  className="rounded-full bg-white p-1 transition-colors hover:bg-black group"
+                  className="rounded-full bg-white md:p-1 lg:p2 transition-colors hover:bg-black group"
                 >
                   <social.Icon className="h-6 w-6 transition-colors group-hover:text-white" />
                 </Link>

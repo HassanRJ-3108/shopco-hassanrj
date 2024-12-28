@@ -2,40 +2,24 @@ import Image from 'next/image'
 import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { satoshi } from '@/app/ui/fonts'
-
-interface ProductCardProps {
-  title: string
-  price: number
-  originalPrice?: number
-  rating: number
-  reviews: number
-  image: string
-  discount?: number
-}
+import { Product } from '@/types/products'
 
 export function ProductCard({
   title,
   price,
   originalPrice,
   rating,
-  reviews,
-  image,
-  discount
-}: ProductCardProps) {
+  imageUrl,
+}: Product) {
   return (
     <div className="group cursor-pointer">
       <div className="relative aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden">
         <Image
-          src={image}
+          src={imageUrl}
           alt={title}
           fill
           className="object-cover transition-transform group-hover:scale-105"
         />
-        {discount && (
-          <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-            -{discount}%
-          </span>
-        )}
       </div>
       <div className="mt-4 space-y-2">
         <div className="flex items-center gap-1">
@@ -48,13 +32,18 @@ export function ProductCard({
               )}
             />
           ))}
-          <span className="text-sm text-gray-500 ml-1">({reviews})</span>
+          <span className="text-sm text-gray-500 ml-1">({rating})</span>
         </div>
         <h3 className={cn("font-medium line-clamp-1", satoshi.className)}>{title}</h3>
         <div className="flex items-center gap-2">
           <span className="font-medium">${price}</span>
           {originalPrice && (
-            <span className="text-sm text-gray-500 line-through">${originalPrice}</span>
+            <>
+              <span className={`${satoshi.className} text-sm text-gray-500 line-through`}>${originalPrice}</span>
+              <span className="text-sm text-red-600">
+                -{Math.round(((originalPrice - price) / originalPrice) * 100)}%
+              </span>
+            </>
           )}
         </div>
       </div>

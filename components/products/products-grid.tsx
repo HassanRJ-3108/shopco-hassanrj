@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, SlidersHorizontal, ChevronDown } from 'lucide-react'
 import { ProductCard } from './product-card'
@@ -7,111 +6,8 @@ import { Filters } from './filters'
 import { cn } from '@/lib/utils'
 import { satoshi } from '@/app/ui/fonts'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-
-const products = [
-  {
-    id: '1',
-    title: 'Gradient Graphic T-shirt',
-    price: 145,
-    originalPrice: 242,
-    rating: 4.5,
-    reviews: 150,
-    image: '/products/g-graphic-t-shirt.png',
-    discount: 20
-  },
-  {
-    id: '2',
-    title: 'Polo with Tipping Details',
-    price: 180,
-    originalPrice: 242,
-    rating: 4.5,
-    reviews: 150,
-    image: '/products/polo.png',
-    discount: 22
-  },
-  {
-    id: '3',
-    title: 'T-shirt with Tape Details',
-    price: 180,
-    originalPrice: 242,
-    rating: 4.5,
-    reviews: 150,
-    image: '/products/tape-tshirt.png',
-    discount: 22
-  },
-  {
-    id: '4',
-    title: 'Skinny Fit Jeans',
-    price: 180,
-    originalPrice: 242,
-    rating: 4.5,
-    reviews: 150,
-    image: '/products/skinny-jeans.png',
-    discount: 22
-  },
-  {
-    id: '5',
-    title: 'Checkered Shirt',
-    price: 180,
-    originalPrice: 242,
-    rating: 4.5,
-    reviews: 150,
-    image: '/products/checkered-tshirt.png',
-    discount: 22
-  },
-  {
-    id: '6',
-    title: 'Sleeve Striped T-shirt',
-    price: 180,
-    originalPrice: 242,
-    rating: 4.5,
-    reviews: 150,
-    image: '/products/sleave-tshirt.png',
-    discount: 22
-  },
-  {
-    id: '7',
-    title: 'Vertical Striped Shirt',
-    price: 180,
-    originalPrice: 242,
-    rating: 4.5,
-    reviews: 150,
-    image: '/products/vertical-shirt.png',
-    discount: 22
-  },
-  {
-    id: '8',
-    title: 'Courage Graphic T-shirt',
-    price: 180,
-    originalPrice: 242,
-    rating: 4.5,
-    reviews: 150,
-    image: '/products/graphic-tshirt.png',
-    discount: 22
-  },
-  {
-    id: '9',
-    title: 'Loose Fit Bermuda Shorts',
-    price: 180,
-    originalPrice: 242,
-    rating: 4.5,
-    reviews: 150,
-    image: '/products/loose-shorts.png',
-    discount: 22
-  },
-  {
-    id: '10',
-    title: 'Faded Skinny Jeans',
-    price: 180,
-    originalPrice: 242,
-    rating: 4.5,
-    reviews: 150,
-    image: '/products/faded-jeans.png',
-    discount: 22
-  },
-]
+import { Product } from '@/types/products'
 
 const sortOptions = [
   { label: 'Most Popular', value: 'most-popular' },
@@ -120,10 +16,11 @@ const sortOptions = [
   { label: 'Price: High to Low', value: 'price-high-low' },
 ]
 
-export function ProductGrid() {
+export function ProductGrid({products}: {products: Product[]}) {
+
+
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [selectedSort, setSelectedSort] = useState(sortOptions[0])
-  const router = useRouter()
 
   return (
     <div className="min-h-screen bg-white">
@@ -198,13 +95,13 @@ export function ProductGrid() {
           <div className="flex-1">
             <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 lg:gap-6">
               {products.map((product) => (
-                <div 
+                <Link 
                   key={product.id} 
-                  onClick={() => router.push(`/product/${product.id}`)}
+                  href={`/shop/${product.slug.current}`}
                   className="cursor-pointer"
                 >
                   <ProductCard {...product} />
-                </div>
+                </Link>
               ))}
             </div>
 

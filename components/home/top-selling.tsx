@@ -1,50 +1,24 @@
-'use client'
 
 import { Star, StarHalf } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { integralCF, satoshi } from '@/app/ui/fonts'
+import { topSellingQuery } from '@/sanity/lib/queries'
+import { client } from '@/sanity/lib/client'
+
 interface Product {
     id: string
-    name: string
+    title: string
     price: number
+    slug: {
+        current: string
+    }
     originalPrice?: number
     rating: number
-    image: string
+    imageUrl: string
 }
 
-const products: Product[] = [
-    {
-        id: '7',
-        name: 'Vertical Striped Shirt',
-        price: 120,
-        rating: 4.5,
-        image: '/products/vertical-shirt.png'
-    },
-    {
-        id: '8',
-        name: 'Courage Graphic T-shirt',
-        price: 240,
-        originalPrice: 260,
-        rating: 3.5,
-        image: '/products/graphic-tshirt.png'
-    },
-    {
-        id: '9',
-        name: 'Loose Fit Bermuda Shorts',
-        price: 180,
-        rating: 4.5,
-        image: '/products/loose-shorts.png'
-    },
-    {
-        id: '10',
-        name: 'Faded Skinny Jeans',
-        price: 130,
-        originalPrice: 160,
-        rating: 4.5,
-        image: '/products/faded-jeans.png'
-    }
-]
+
 
 function StarRating({ rating }: { rating: number }) {
     const fullStars = Math.floor(rating)
@@ -64,7 +38,12 @@ function StarRating({ rating }: { rating: number }) {
     )
 }
 
-export default function TopSelling() {
+export default async function TopSelling() {
+
+
+const products: Product[] = await client.fetch(topSellingQuery)
+
+
     return (
         <section className="mx-auto max-w-7xl px-4 py-12">
             <h2 className={` ${integralCF.className} mb-8 text-center text-3xl font-bold tracking-tight`}>Top Selling</h2>
@@ -72,20 +51,20 @@ export default function TopSelling() {
                 {products.map((product) => (
                     <Link
                         key={product.id}
-                        href={`/product/${product.id}`}
+                        href={`/shop/${product.slug.current}`}
                         className="group rounded-lg bg-gray-50 p-4 transition-transform hover:scale-[1.02]"
                     >
                         <div className="relative aspect-square overflow-hidden rounded-lg bg-white">
                             <Image
-                                src={product.image}
-                                alt={product.name}
+                                src={product.imageUrl}
+                                alt={product.title}
                                 fill
                                 className="object-cover"
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                             />
                         </div>
                         <div className="mt-4 space-y-2">
-                            <h3 className={` ${satoshi.className} font-medium text-gray-900`}>{product.name}</h3>
+                            <h3 className={` ${satoshi.className} font-medium text-gray-900`}>{product.title}</h3>
                             <StarRating rating={product.rating} />
                             <div className="flex items-center gap-2">
                                 <span className={` ${satoshi.className} text-lg font-semibold `}>${product.price}</span>

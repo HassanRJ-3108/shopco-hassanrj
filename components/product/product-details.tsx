@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ChevronRight, Minus, Plus, Star, StarHalf } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { satoshi, integralCF } from '@/app/ui/fonts'
-
+import { Product } from '@/types/product'
 
 function StarRating({ rating }: { rating: number }) {
   const fullStars = Math.floor(rating)
@@ -26,22 +26,6 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
-interface Product {
-  id: string
-  title: string
-  price: number
-  originalPrice: number
-  rating: number
-  reviews: number
-  description: string
-  images: string[]
-  colors: Array<{
-    name: string
-    value: string
-  }>
-  sizes: string[]
-}
-
 interface ProductDetailProps {
   product: Product
 }
@@ -49,7 +33,7 @@ interface ProductDetailProps {
 export function ProductDetail({ product }: ProductDetailProps) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [selectedColor, setSelectedColor] = useState(product.colors[0])
-  const [selectedSize, setSelectedSize] = useState('Large')
+  const [selectedSize, setSelectedSize] = useState(product.sizes[0])
   const [quantity, setQuantity] = useState(1)
 
   const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -63,9 +47,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           <ChevronRight className="h-4 w-4 mx-2" />
           <Link href="/shop" className="hover:text-gray-900">Shop</Link>
           <ChevronRight className="h-4 w-4 mx-2" />
-          <Link href="/men" className="hover:text-gray-900">Men</Link>
-          <ChevronRight className="h-4 w-4 mx-2" />
-          <span className="text-gray-900">T-shirts</span>
+          <span className="text-gray-900">{product.category.name}</span>
         </div>
 
         <div className="lg:grid lg:grid-cols-2 lg:gap-x-8">
@@ -81,7 +63,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               {product.images.map((image, index) => (
                 <button
                   key={index}
@@ -94,8 +76,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   <Image
                     src={image}
                     alt={`${product.title} view ${index + 1}`}
-                    width={200}
-                    height={200}
+                    width={150}
+                    height={150}
                     className="w-full h-full object-cover"
                   />
                 </button>
@@ -107,7 +89,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           <div className="mt-8 lg:mt-0">
             <h1 className={cn("text-3xl font-bold", integralCF.className)}>
               {product.title}
-            </h1> 
+            </h1>
 
             <div className="mt-4 flex items-center gap-2">
               <div className="flex items-center">
@@ -122,12 +104,14 @@ export function ProductDetail({ product }: ProductDetailProps) {
               <span className={cn("text-2xl font-bold", satoshi.className)}>
                 ${product.price}
               </span>
-              <span className="text-lg text-gray-500 line-through">
-                ${product.originalPrice}
-              </span>
-              <span className="text-red-500 text-sm font-medium">
-                -{discount}%
-              </span>
+              {product.originalPrice && (
+                <>
+                  <span className={`${satoshi.className} text-sm text-gray-500 line-through`}>${product.originalPrice}</span>
+                  <span className="text-sm text-red-600">
+                    -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                  </span>
+                </>
+              )}
             </div>
 
             <p className="mt-6 text-gray-600">
@@ -192,7 +176,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   </button>
                   <span className="w-12 text-center">{quantity}</span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => setQuantity(Math.min(product.inventory, quantity + 1))}
                     className="w-10 h-10 flex items-center justify-center border-l"
                   >
                     <Plus className="h-4 w-4" />

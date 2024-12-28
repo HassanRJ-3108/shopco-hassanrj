@@ -8,7 +8,7 @@ import { integralCF } from '@/app/ui/fonts'
 
 const footerLinks = {
   company: [
-    { name: 'About', href: '#' },
+    { name: 'About', href: '/about' },
     { name: 'Features', href: '#' },
     { name: 'Works', href: '#' },
     { name: 'Career', href: '#' },

@@ -1,12 +1,18 @@
 'use client'
 
 import { useState } from 'react'
+import * as Tabs from '@radix-ui/react-tabs'
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { MoreHorizontal, SlidersHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { satoshi } from '@/app/ui/fonts'
-import * as Tabs from '@radix-ui/react-tabs'
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { FAQsTab } from './faqs-tab'
+import { ProductDetailsTab } from './product-details-tab'
+import { Product } from '@/types/product'
 
+interface ProductReviewsProps {
+  product: Product
+}
 
 interface Review {
   id: string
@@ -75,7 +81,7 @@ function StarRating({ rating }: { rating: number }) {
 }
 // StarRating component and reviews array are unchanged
 
-export function ProductReviews() {
+export function ProductReviews({ product }: ProductReviewsProps) {
   const [activeTab, setActiveTab] = useState('reviews')
 
   return (
@@ -118,11 +124,7 @@ export function ProductReviews() {
         </Tabs.List>
 
         <Tabs.Content value="details" className="pt-8">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
-            <h2 className={cn("text-lg font-medium", satoshi.className)}>
-              Product Details Not available yet 😊
-            </h2>
-          </div>
+          <ProductDetailsTab productDetails={product.productDetails} />
         </Tabs.Content>
 
         <Tabs.Content value="reviews" className="pt-8">
@@ -204,11 +206,7 @@ export function ProductReviews() {
         </Tabs.Content>
 
         <Tabs.Content value="faqs" className="pt-8">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
-            <h2 className={cn("text-lg font-medium", satoshi.className)}>
-              FAQS Not Available yet 😊
-            </h2>
-          </div>
+          <FAQsTab faqs={product.faqs} />
         </Tabs.Content>
       </Tabs.Root>
     </div>

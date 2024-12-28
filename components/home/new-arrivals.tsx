@@ -1,52 +1,26 @@
-'use client'
-
 import { Star, StarHalf } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { integralCF, satoshi } from '@/app/ui/fonts'
+import { client } from '@/sanity/lib/client'
+import { newArrivalsQuery } from '@/sanity/lib/queries'
 interface Product {
   id: string
-  name: string
+  slug: {
+    current: string
+  }
+  title: string
   price: number
   originalPrice?: number
   rating: number
-  image: string
+  imageUrl: string
+  
 }
 
-const products: Product[] = [
-  {
-    id: '3',
-    name: 'T-shirt with Tape Details',
-    price: 120,
-    rating: 4.5,
-    image: '/products/tape-tshirt.png'
-  },
-  {
-    id: '4',
-    name: 'Skinny Fit Jeans',
-    price: 240,
-    originalPrice: 260,
-    rating: 3.5,
-    image: '/products/skinny-jeans.png'
-  },
-  {
-    id: '5',
-    name: 'Checkered Shirt',
-    price: 180,
-    rating: 4.5,
-    image: '/products/checkered-tshirt.png'
-  },
-  {
-    id: '6',
-    name: 'Sleeve Striped T-shirt',
-    price: 130,
-    originalPrice: 160,
-    rating: 4.5,
-    image: '/products/sleave-tshirt.png'
-  }
-]
+
 
 function StarRating({ rating }: { rating: number }) {
+
   const fullStars = Math.floor(rating)
   const hasHalfStar = rating % 1 !== 0
 
@@ -64,28 +38,32 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
-export default function NewArrivals() {
+export default async function NewArrivals() {
+
+ const products: Product[] = await client.fetch(newArrivalsQuery)
+console.log(products);
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-12">
       <h2 className={` ${integralCF.className} mb-8 text-center text-3xl font-bold tracking-tight`}>NEW ARRIVALS</h2>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {products.map((product) => (
+        {products.slice(0, 4).map((product) => (
           <Link
             key={product.id}
-            href={`/product/${product.id}`}
+            href={`/shop/${product.slug.current}`}
             className="group rounded-lg bg-gray-50 p-4 transition-transform hover:scale-[1.02]"
           >
             <div className="relative aspect-square overflow-hidden rounded-lg bg-white">
               <Image
-                src={product.image}
-                alt={product.name}
+                src={product.imageUrl}
+                alt={product.title}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
               />
             </div>
             <div className="mt-4 space-y-2">
-              <h3 className={` ${satoshi.className} font-medium text-gray-900`}>{product.name}</h3>
+              <h3 className={` ${satoshi.className} font-medium text-gray-900`}>{product.title}</h3>
               <StarRating rating={product.rating} />
               <div className="flex items-center gap-2">
                 <span className="text-lg font-semibold">${product.price}</span>
@@ -104,7 +82,7 @@ export default function NewArrivals() {
       </div>
       <div className="mt-8 text-center">
         <Link
-          href="/products"
+          href="/shop"
           className="inline-block rounded-full border border-gray-300 px-8 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
         >
           View All

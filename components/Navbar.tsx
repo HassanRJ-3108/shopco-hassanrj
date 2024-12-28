@@ -16,9 +16,9 @@ export function Navbar() {
      
       {/* Top Banner */}
       <div className="relative bg-black text-white text-center py-3 px-4 text-[10px] md:text-sm">
-        <p>
+        <p className='text-white'>
           Sign up and get 20% off to your first order.{' '}
-          <Link href="#" className="underline font-medium">
+          <Link href="#" className="underline font-medium text-white">
             Sign Up Now
           </Link>
         </p>
@@ -50,10 +50,10 @@ export function Navbar() {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-8">
-              <Link href="/products" className="hover:text-gray-600">Shop</Link>
-              <Link href="#" className="hover:text-gray-600">On Sale</Link>
-              <Link href="#" className="hover:text-gray-600">New Arrivals</Link>
-              <Link href="#" className="hover:text-gray-600">Brands</Link>
+              <Link href="/shop" className="hover:text-gray-600">Shop</Link>
+              <Link href="/#on-sale" className="hover:text-gray-600">On Sale</Link>
+              <Link href="/#new-arrivals" className="hover:text-gray-600">New Arrivals</Link>
+              <Link href="/#brands" className="hover:text-gray-600">Brands</Link>
             </nav>
 
             {/* Search Bar - Desktop */}
@@ -102,7 +102,7 @@ export function Navbar() {
           </button>
           <nav className="mt-12 space-y-6">
             <Link 
-              href="/products" 
+              href="/shop" 
               className="block text-lg hover:text-gray-600"
               onClick={() => setIsMenuOpen(false)}
             >

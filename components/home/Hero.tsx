@@ -19,7 +19,7 @@ export function Hero() {
             Browse through our diverse range of meticulously crafted garments, designed to bring out your individuality and cater to your sense of style.
           </p>
           <Link
-            href="/products"
+            href="/shop"
             className="mt-8 px-12 py-4 bg-black text-white rounded-full font-medium hover:bg-gray-900 transition-colors w-fit text-base"
           >
             Shop Now
@@ -28,15 +28,15 @@ export function Hero() {
           {/* Stats Section - Visible on all screens */}
           <div className="grid grid-cols-3 gap-4 mt-12">
             <div className="text-center">
-              <div className="font-bold text-xl lg:text-2xl">200+</div>
+              <div className="font-bold text-xl lg:text-2xl h1">200+</div>
               <div className="text-sm text-gray-600">International Brands</div>
             </div>
             <div className="text-center">
-              <div className="font-bold text-xl lg:text-2xl">2,000+</div>
-              <div className="text-sm text-gray-600">High-Quality Products</div>
+              <div className="font-bold text-xl lg:text-2xl h1">2,000+</div>
+              <div className="text-sm text-gray-600 h1">High-Quality Products</div>
             </div>
             <div className="text-center">
-              <div className="font-bold text-xl lg:text-2xl">30,000+</div>
+              <div className="font-bold text-xl lg:text-2xl h1">30,000+</div>
               <div className="text-sm text-gray-600">Happy Customers</div>
             </div>
           </div>

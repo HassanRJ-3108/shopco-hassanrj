@@ -1,53 +1,78 @@
 'use client'
 
-import { useState } from 'react'
-import { ChevronRight, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Star, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { satoshi } from '@/app/ui/fonts'
-import * as Accordion from '@radix-ui/react-accordion'
 import * as Slider from '@radix-ui/react-slider'
 
-// Define constants for filter options
-const categories = ['T-shirts', 'Shorts', 'Shirts', 'Hoodie', 'Jeans']
-const colors = [
-  { name: 'Green', class: 'bg-green-500' },
-  { name: 'Red', class: 'bg-red-500' },
-  { name: 'Yellow', class: 'bg-yellow-500' },
-  { name: 'Orange', class: 'bg-orange-500' },
-  { name: 'Blue', class: 'bg-blue-500' },
-  { name: 'Purple', class: 'bg-purple-500' },
-  { name: 'Pink', class: 'bg-pink-500' },
-  { name: 'Black', class: 'bg-black' },
-]
-const sizes = ['XX-Small', 'X-Small', 'Small', 'Medium', 'Large', 'X-Large', '2X-Large', '3X-Large', '4X-Large']
-const styles = ['Casual', 'Formal', 'Party', 'Gym']
-
-// Define props interface for the Filters component
 interface FiltersProps {
   isMobile?: boolean
   isOpen?: boolean
   onClose?: () => void
+  categories: string[]
+  styles: string[]
+  updateFilters: (filters: Record<string, string[]>) => void
+  searchParams: URLSearchParams
 }
 
-export function Filters({ isMobile, isOpen, onClose }: FiltersProps) {
-  // State for price range and selected size
-  const [priceRange, setPriceRange] = useState([50, 200])
-  const [selectedSize, setSelectedSize] = useState('Small')
+export function Filters({ isMobile, isOpen, onClose, categories, styles, updateFilters, searchParams }: FiltersProps) {
+  const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '0')
+  const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '1000')
+  const [priceRange, setPriceRange] = useState([parseInt(minPrice), parseInt(maxPrice)])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(searchParams.getAll('category'))
+  const [selectedStyles, setSelectedStyles] = useState<string[]>(searchParams.getAll('style'))
+  const [newArrivals, setNewArrivals] = useState(searchParams.get('newArrivals') === 'true')
+  const [topSelling, setTopSelling] = useState(searchParams.get('topSelling') === 'true')
 
-  // Function to handle filter application
-  const handleApplyFilter = () => {
-    // TODO: Implement filter application logic
-    console.log('Applying filters:', { priceRange, selectedSize })
-    onClose?.()
+  useEffect(() => {
+    setMinPrice(searchParams.get('minPrice') || '0')
+    setMaxPrice(searchParams.get('maxPrice') || '1000')
+    setPriceRange([parseInt(searchParams.get('minPrice') || '0'), parseInt(searchParams.get('maxPrice') || '1000')])
+    setSelectedCategories(searchParams.getAll('category'))
+    setSelectedStyles(searchParams.getAll('style'))
+    setNewArrivals(searchParams.get('newArrivals') === 'true')
+    setTopSelling(searchParams.get('topSelling') === 'true')
+  }, [searchParams])
+
+  const handlePriceChange = () => {
+    updateFilters({
+      minPrice: [priceRange[0].toString()],
+      maxPrice: [priceRange[1].toString()]
+    })
   }
 
-  // Main content of the filter component
+  const handleCategoryChange = (category: string) => {
+    const updatedCategories = selectedCategories.includes(category)
+      ? selectedCategories.filter(c => c !== category)
+      : [...selectedCategories, category]
+    setSelectedCategories(updatedCategories)
+    updateFilters({ category: updatedCategories })
+  }
+
+  const handleStyleChange = (style: string) => {
+    const updatedStyles = selectedStyles.includes(style)
+      ? selectedStyles.filter(s => s !== style)
+      : [...selectedStyles, style]
+    setSelectedStyles(updatedStyles)
+    updateFilters({ style: updatedStyles })
+  }
+
+  const handleNewArrivalsChange = () => {
+    setNewArrivals(!newArrivals)
+    updateFilters({ newArrivals: [!newArrivals ? 'true' : ''] })
+  }
+
+  const handleTopSellingChange = () => {
+    setTopSelling(!topSelling)
+    updateFilters({ topSelling: [!topSelling ? 'true' : ''] })
+  }
+
   const filterContent = (
     <div className={cn(
       "flex flex-col h-full",
       isMobile ? "bg-white" : ""
     )}>
-      {/* Mobile header */}
       {isMobile && (
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className={cn("text-xl font-medium", satoshi.className)}>Filters</h2>
@@ -61,120 +86,128 @@ export function Filters({ isMobile, isOpen, onClose }: FiltersProps) {
         </div>
       )}
 
-      {/* Scrollable filter options */}
       <div className={cn(
-        "flex-1 overflow-auto",
+        "flex-1 overflow-auto space-y-6",
         isMobile ? "p-4" : ""
       )}>
-        {/* Categories accordion */}
-        <Accordion.Root type="multiple" className="space-y-4">
-          {categories.map((category) => (
-            <Accordion.Item key={category} value={category} className="border-b pb-4">
-              <Accordion.Trigger className="flex items-center justify-between w-full text-left">
-                <span className="text-sm">{category}</span>
-                <ChevronRight className="h-4 w-4 transform transition-transform duration-200 group-data-[state=open]:rotate-90" />
-              </Accordion.Trigger>
-              <Accordion.Content className="pt-2">
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" className="rounded border-gray-300" />
-                    <span className="text-sm">Subcategory 1</span>
-                  </label>
-                  {/* Add more subcategories as needed */}
-                </div>
-              </Accordion.Content>
-            </Accordion.Item>
-          ))}
-        </Accordion.Root>
-
-        {/* Other filter options */}
-        <div className="space-y-6 mt-6">
-          {/* Price range slider */}
-          <div className="space-y-4">
-            <h3 className={cn("font-medium", satoshi.className)}>Price</h3>
-            <Slider.Root
-              className="relative flex items-center w-full h-5"
-              value={priceRange}
-              max={200}
-              step={1}
-              onValueChange={setPriceRange}
-            >
-              <Slider.Track className="bg-gray-200 relative grow rounded-full h-[3px]">
-                <Slider.Range className="absolute bg-black rounded-full h-full" />
-              </Slider.Track>
-              <Slider.Thumb className="block w-5 h-5 bg-black rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2" />
-              <Slider.Thumb className="block w-5 h-5 bg-black rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2" />
-            </Slider.Root>
-            <div className="flex items-center justify-between text-sm">
-              <span>${priceRange[0]}</span>
-              <span>${priceRange[1]}</span>
-            </div>
-          </div>
-
-          {/* Color options */}
-          <div className="space-y-4">
-            <h3 className={cn("font-medium", satoshi.className)}>Colors</h3>
-            <div className="grid grid-cols-5 gap-3">
-              {colors.map((color) => (
-                <button
-                  key={color.name}
-                  className={cn(
-                    "w-8 h-8 rounded-full ring-2 ring-offset-2 ring-transparent hover:ring-gray-300 focus:ring-gray-300",
-                    color.class
-                  )}
-                  aria-label={color.name}
+        <div className="space-y-4">
+          <h3 className={cn("font-medium", satoshi.className)}>Category</h3>
+          <div className="space-y-2">
+            {categories.map((category) => (
+              <label key={category} className="flex items-center gap-2">
+                <input 
+                  type="checkbox" 
+                  checked={selectedCategories.includes(category)}
+                  onChange={() => handleCategoryChange(category)}
+                  className="rounded border-gray-300" 
                 />
-              ))}
-            </div>
-          </div>
-
-          {/* Size options */}
-          <div className="space-y-4">
-            <h3 className={cn("font-medium", satoshi.className)}>Size</h3>
-            <div className="grid grid-cols-3 gap-2">
-              {sizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={cn(
-                    "px-3 py-2 text-xs border rounded-full transition-colors",
-                    size === selectedSize
-                      ? "border-black bg-black text-white"
-                      : "border-gray-200 hover:border-black"
-                  )}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Dress style options */}
-          <div className="space-y-4">
-            <h3 className={cn("font-medium", satoshi.className)}>Dress Style</h3>
-            {styles.map((style) => (
-              <div key={style} className="flex items-center justify-between py-2">
-                <span className="text-sm">{style}</span>
-                <ChevronRight className="h-4 w-4" />
-              </div>
+                <span className="text-sm">{category}</span>
+              </label>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Apply filter button */}
-      <div className="p-4 border-t bg-white">
-        <button
-          onClick={handleApplyFilter}
-          className="w-full py-4 bg-black text-white rounded-full hover:bg-gray-900 transition-colors"
-        >
-          Apply Filter
-        </button>
+        <div className="space-y-4">
+          <h3 className={cn("font-medium", satoshi.className)}>Style</h3>
+          <div className="space-y-2">
+            {styles.map((style) => (
+              <label key={style} className="flex items-center gap-2">
+                <input 
+                  type="checkbox" 
+                  checked={selectedStyles.includes(style)}
+                  onChange={() => handleStyleChange(style)}
+                  className="rounded border-gray-300" 
+                />
+                <span className="text-sm">{style}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className={cn("font-medium", satoshi.className)}>Price</h3>
+          <Slider.Root
+            className="relative flex items-center w-full h-5"
+            value={priceRange}
+            max={1000}
+            step={1}
+            onValueChange={setPriceRange}
+          >
+            <Slider.Track className="bg-gray-200 relative grow rounded-full h-[3px]">
+              <Slider.Range className="absolute bg-black rounded-full h-full" />
+            </Slider.Track>
+            <Slider.Thumb className="block w-5 h-5 bg-black rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2" />
+            <Slider.Thumb className="block w-5 h-5 bg-black rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2" />
+          </Slider.Root>
+          <div className="flex items-center space-x-2">
+            <input
+              type="number"
+              value={priceRange[0]}
+              onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
+              className="w-1/2 p-2 border rounded"
+            />
+            <input
+              type="number"
+              value={priceRange[1]}
+              onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+              className="w-1/2 p-2 border rounded"
+            />
+          </div>
+          <button
+            onClick={handlePriceChange}
+            className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors"
+          >
+            Apply Price Filter
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className={cn("font-medium", satoshi.className)}>Rating</h3>
+          <div className="space-y-2">
+            {[5, 4, 3, 2, 1].map((rating) => (
+              <button
+                key={rating}
+                className="flex items-center space-x-2 w-full text-left"
+                onClick={() => updateFilters({ rating: [rating.toString()] })}
+              >
+                {Array.from({ length: rating }).map((_, index) => (
+                  <Star key={index} className="h-4 w-4 fill-current text-yellow-400" />
+                ))}
+                <span className="text-sm">& Up</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className={cn("font-medium", satoshi.className)}>New Arrivals</h3>
+          <label className="flex items-center gap-2">
+            <input 
+              type="checkbox" 
+              checked={newArrivals}
+              onChange={handleNewArrivalsChange}
+              className="rounded border-gray-300" 
+            />
+            <span className="text-sm">Show only new arrivals</span>
+          </label>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className={cn("font-medium", satoshi.className)}>Top Selling</h3>
+          <label className="flex items-center gap-2">
+            <input 
+              type="checkbox" 
+              checked={topSelling}
+              onChange={handleTopSellingChange}
+              className="rounded border-gray-300" 
+            />
+            <span className="text-sm">Show only top selling products</span>
+          </label>
+        </div>
       </div>
     </div>
   )
 
-  // Render mobile or desktop version based on isMobile prop
   if (isMobile) {
     return (
       <div

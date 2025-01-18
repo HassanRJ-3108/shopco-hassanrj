@@ -9,25 +9,25 @@ const categories = [
     id: 'casual',
     name: 'Casual',
     image: '/browse/casual.png',
-    href: '/shop'
+    href: '/shop?style=casual'
   },
   {
     id: 'formal',
     name: 'Formal',
     image: '/browse/formal.png',
-    href: '/shop'
+    href: '/shop?style=formal'
   },
   {
     id: 'party',
     name: 'Party',
     image: '/browse/party.png',
-    href: '/shop'
+    href: '/shop?style=party'
   },
   {
     id: 'gym',
     name: 'Gym',
     image: '/browse/gym.png',
-    href: '/shop'
+    href: '/shop?style=gym'
   }
 ]
 

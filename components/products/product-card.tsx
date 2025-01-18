@@ -2,7 +2,11 @@ import Image from 'next/image'
 import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { satoshi } from '@/app/ui/fonts'
-import { Product } from '@/types/products'
+import { Product } from '@/types/product'
+
+type ProductCardProps = Pick<Product, '_id' | 'title' | 'price' | 'originalPrice' | 'rating' | 'slug' | 'category' | 'style' | 'colors' | 'sizes'> & {
+  imageUrl: string;
+}
 
 export function ProductCard({
   title,
@@ -10,16 +14,23 @@ export function ProductCard({
   originalPrice,
   rating,
   imageUrl,
-}: Product) {
+}: ProductCardProps) {
   return (
     <div className="group cursor-pointer">
       <div className="relative aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden">
-        <Image
-          src={imageUrl}
-          alt={title}
-          fill
-          className="object-cover transition-transform group-hover:scale-105"
-        />
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400">
+            No image available
+          </div>
+        )}
       </div>
       <div className="mt-4 space-y-2">
         <div className="flex items-center gap-1">
@@ -37,7 +48,7 @@ export function ProductCard({
         <h3 className={cn("font-medium line-clamp-1", satoshi.className)}>{title}</h3>
         <div className="flex items-center gap-2">
           <span className="font-medium">${price}</span>
-          {originalPrice && (
+          {originalPrice && originalPrice > price && (
             <>
               <span className={`${satoshi.className} text-sm text-gray-500 line-through`}>${originalPrice}</span>
               <span className="text-sm text-red-600">

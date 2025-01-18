@@ -1,46 +1,49 @@
 'use client'
+
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, ShoppingBag } from 'lucide-react'
 import { CartItem } from './cart-item'
 import { OrderSummary } from './order-sumary'
 import { integralCF } from '@/app/ui/fonts'
 import { cn } from '@/lib/utils'
-
-const cartItems = [
-  {
-    id: '1',
-    name: 'Gradient Graphic T-shirt',
-    size: 'Large',
-    color: 'White',
-    price: 145,
-    image: '/products/g-graphic-t-shirt.png',
-    quantity: 1
-  },
-  {
-    id: '2',
-    name: 'Checkered Shirt',
-    size: 'Medium',
-    color: 'Red',
-    price: 180,
-    image: '/products/checkered-tshirt.png',
-    quantity: 1
-  },
-  {
-    id: '3',
-    name: 'Skinny Fit Jeans',
-    size: 'Large',
-    color: 'Blue',
-    price: 240,
-    image: '/products/skinny-jeans.png',
-    quantity: 1
-  }
-]
+import { useCart } from '@/context/CartContext'
+import { removeFromCart, updateQuantity } from '@/app/actions/Cart'
 
 export function CartPage() {
-  const subtotal = 565
-  const discount = 113
+  const { state, dispatch } = useCart()
+
+  const subtotal = Number(state.items.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2))
+  const discountRate = 0.014 // 10% discount
+  const discount = Number((subtotal * discountRate).toFixed(2))
   const deliveryFee = 15
-  const total = 467
+  const total = Number((subtotal - discount + deliveryFee).toFixed(2))
+
+  const handleUpdateQuantity = (id: string, color: string, size: string, newQuantity: number) => {
+    const item = state.items.find(item => item.id === id && item.color === color && item.size === size)
+    if (item) {
+      updateQuantity(dispatch, { ...item, quantity: newQuantity })
+    }
+  }
+
+  const handleRemoveItem = (id: string, color: string, size: string) => {
+    removeFromCart(dispatch, { id, name: '', price: 0, image: '', color, size })
+  }
+
+  if (state.items.length === 0) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
+        <ShoppingBag className="h-24 w-24 text-gray-300 mb-4" />
+        <h2 className={cn("text-2xl font-bold mb-2", integralCF.className)}>Your cart is empty</h2>
+        <p className="text-gray-600 mb-8">Looks like you haven't added any items to your cart yet.</p>
+        <Link 
+          href="/shop" 
+          className="bg-black text-white px-6 py-3 rounded-full hover:bg-gray-800 transition-colors"
+        >
+          Continue Shopping
+        </Link>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -60,16 +63,12 @@ export function CartPage() {
           {/* Cart Items */}
           <div className="lg:col-span-7">
             <div className="divide-y">
-              {cartItems.map(item => (
+              {state.items.map(item => (
                 <CartItem
-                  key={item.id}
+                  key={`${item.id}-${item.color}-${item.size}`}
                   {...item}
-                  onUpdateQuantity={(id, quantity) => {
-                    console.log('Update quantity', id, quantity)
-                  }}
-                  onRemove={(id) => {
-                    console.log('Remove item', id)
-                  }}
+                  onUpdateQuantity={(newQuantity) => handleUpdateQuantity(item.id, item.color, item.size, newQuantity)}
+                  onRemove={() => handleRemoveItem(item.id, item.color, item.size)}
                 />
               ))}
             </div>

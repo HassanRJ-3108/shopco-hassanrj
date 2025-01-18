@@ -1,6 +1,7 @@
 import { ArrowRight, Tag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { satoshi } from '@/app/ui/fonts'
+import Link from 'next/link'
 
 interface OrderSummaryProps {
   subtotal: number
@@ -10,28 +11,30 @@ interface OrderSummaryProps {
 }
 
 export function OrderSummary({ subtotal, discount, deliveryFee, total }: OrderSummaryProps) {
+  const formatPrice = (price: number) => price.toFixed(2)
+
   return (
     <div className="bg-gray-50 rounded-2xl p-6 lg:p-8">
       <h2 className={cn("text-xl font-medium mb-6", satoshi.className)}>Order Summary</h2>
       <div className="space-y-4">
         <div className="flex justify-between">
           <span className="text-gray-600">Subtotal</span>
-          <span className="font-medium">${subtotal}</span>
+          <span className="font-medium">${formatPrice(subtotal)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Discount (-20%)</span>
-          <span className="text-red-500">-${discount}</span>
+          <span className="text-gray-600">Discount</span>
+          <span className="text-red-500">-${formatPrice(discount)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600">Delivery Fee</span>
-          <span className="font-medium">${deliveryFee}</span>
+          <span className="font-medium">${formatPrice(deliveryFee)}</span>
         </div>
         <div className="h-px bg-gray-200 my-4" />
         <div className="flex justify-between text-lg font-medium">
           <span>Total</span>
-          <span>${total}</span>
+          <span>${formatPrice(total)}</span>
         </div>
-        
+
         <div className="flex gap-2 mt-6">
           <div className="relative flex-1">
             <input
@@ -45,13 +48,13 @@ export function OrderSummary({ subtotal, discount, deliveryFee, total }: OrderSu
             Apply
           </button>
         </div>
-        
-        <button className="w-full mt-4 px-6 py-4 bg-black text-white rounded-full flex items-center justify-center gap-2 hover:bg-gray-900 transition-colors">
-          <span>Go to Checkout</span>
-          <ArrowRight className="h-5 w-5" />
-        </button>
+        <Link href="/checkout" passHref>
+          <button className="w-full mt-4 px-6 py-4 bg-black text-white rounded-full flex items-center justify-center gap-2 hover:bg-gray-900 transition-colors">
+            <span>Go to Checkout</span>
+            <ArrowRight className="h-5 w-5" />
+          </button>
+        </Link>
       </div>
     </div>
   )
 }
-

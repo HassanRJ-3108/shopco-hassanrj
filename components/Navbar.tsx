@@ -1,19 +1,60 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Menu, Search, ShoppingCart, User } from 'lucide-react'
+import { Menu, Search, ShoppingCart, User, X } from 'lucide-react'
 import { integralCF } from '@/app/ui/fonts'
 import { cn } from '@/lib/utils'
+import { useCart } from '@/context/CartContext'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useRouter } from 'next/navigation'
+import { SearchBar } from './SearchBar'
+import { ShopMenu, menuItems } from './ShopMenu'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isShopMenuOpen, setIsShopMenuOpen] = useState(false)
+  const { state } = useCart()
+  const router = useRouter()
+  const searchRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const shopMenuRef = useRef<HTMLDivElement>(null)
+
+  const cartItemCount = state.items.length
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchOpen(false)
+      }
+      if (menuRef.current && !menuRef.current.contains(event.target as Node) && isMenuOpen) {
+        setIsMenuOpen(false)
+      }
+      if (shopMenuRef.current && !shopMenuRef.current.contains(event.target as Node)) {
+        setIsShopMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isMenuOpen])
+
+  const handleSearch = (query: string) => {
+    router.push(`/shop?search=${encodeURIComponent(query)}`)
+    setIsSearchOpen(false)
+  }
 
   return (
-    
     <div className="w-full bg-white shadow-sm">
-     
       {/* Top Banner */}
       <div className="relative bg-black text-white text-center py-3 px-4 text-[10px] md:text-sm">
         <p className='text-white'>
@@ -22,7 +63,6 @@ export function Navbar() {
             Sign Up Now
           </Link>
         </p>
-        
       </div>
 
       {/* Main Navbar */}
@@ -30,12 +70,14 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Mobile Menu Button */}
-            <button
+            <motion.button
               className="lg:hidden p-2"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              animate={{ rotate: isMenuOpen ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
             >
-              <Menu className="h-6 w-6" />
-            </button>
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </motion.button>
 
             {/* Logo */}
             <Link 
@@ -50,33 +92,56 @@ export function Navbar() {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-8">
-              <Link href="/shop" className="hover:text-gray-600">Shop</Link>
-              <Link href="/#on-sale" className="hover:text-gray-600">On Sale</Link>
-              <Link href="/#new-arrivals" className="hover:text-gray-600">New Arrivals</Link>
-              <Link href="/#brands" className="hover:text-gray-600">Brands</Link>
+              <div 
+                ref={shopMenuRef}
+                className="relative"
+              >
+                <button 
+                  className="flex items-center hover:text-gray-600 py-8"
+                  onClick={() => setIsShopMenuOpen(!isShopMenuOpen)}
+                >
+                  Shop
+                  <svg 
+                    className={cn(
+                      "ml-1 h-4 w-4 transition-transform duration-200",
+                      isShopMenuOpen ? "rotate-180" : ""
+                    )} 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth="2" 
+                      d="M6 9l6 6 6-6"
+                    />
+                  </svg>
+                </button>
+                {isShopMenuOpen && <ShopMenu />}
+              </div>
+              <Link href="/shop?topSelling=true" className="hover:text-gray-600">On Sale</Link>
+              <Link href="/shop?newArrivals=true" className="hover:text-gray-600">New Arrivals</Link>
+              <Link href="/about" className="hover:text-gray-600">About</Link>
             </nav>
 
             {/* Search Bar - Desktop */}
             <div className="hidden lg:flex items-center flex-1 max-w-md mx-8">
-              <div className="relative w-full">
-                <input
-                  type="search"
-                  placeholder="Search for products..."
-                  className="w-full py-2 pl-10 pr-4 bg-gray-100 rounded-lg focus:outline-none"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              </div>
+              <SearchBar onSearch={handleSearch} />
             </div>
 
             {/* Icons */}
             <div className="flex items-center gap-4">
-              <button className="lg:hidden">
+              <button className="lg:hidden" onClick={() => setIsSearchOpen(!isSearchOpen)}>
                 <Search className="h-6 w-6" />
               </button>
-              <Link href="/cart">
+              <Link href="/cart" className="relative">
                 <ShoppingCart className="h-6 w-6" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
               </Link>
               <Link href="#">
                 <User className="h-6 w-6" />
@@ -87,64 +152,98 @@ export function Navbar() {
       </div>
 
       {/* Mobile Menu */}
-      <div
-        className={cn(
-          "absolute inset-0 bg-white transform transition-transform duration-300 lg:hidden",
-          isMenuOpen ? "translate-y-0" : "-translate-y-full"
-        )}
-      >
-        <div className="p-4">
-          <button
-            className="absolute right-4 top-4 p-2 text-2xl"
-            onClick={() => setIsMenuOpen(false)}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            ref={menuRef}
+            className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50 lg:hidden"
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'tween', duration: 0.3 }}
           >
-            X
-          </button>
-          <nav className="mt-12 space-y-6">
-            <Link 
-              href="/shop" 
-              className="block text-lg hover:text-gray-600"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Shop
-            </Link>
-            <Link 
-              href="#" 
-              className="block text-lg hover:text-gray-600"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              On Sale
-            </Link>
-            <Link 
-              href="#" 
-              className="block text-lg hover:text-gray-600"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              New Arrivals
-            </Link>
-            <Link 
-              href="/products" 
-              className="block text-lg hover:text-gray-600"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Brands
-            </Link>
-          </nav>
-          {/* Mobile Search */}
-          <div className="mt-8">
-            <div className="relative">
-              <input
-                type="search"
-                placeholder="Search for products..."
-                className="w-full py-2 pl-10 pr-4 bg-gray-100 rounded-lg focus:outline-none"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <div className="p-4">
+              <div className="flex justify-between items-center mb-8">
+                <Link 
+                  href="/" 
+                  className={cn(
+                    "text-xl font-bold",
+                    integralCF.className
+                  )}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  SHOP.CO
+                </Link>
+                <button
+                  className="p-2 text-2xl"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              <nav className="space-y-6">
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="shop">
+                    <AccordionTrigger>Shop</AccordionTrigger>
+                    <AccordionContent>
+                      {menuItems.map((item) => (
+                        <Link
+                          key={item.title}
+                          href={item.href}
+                          className="block py-2 hover:text-gray-600"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="text-sm font-medium">{item.title}</div>
+                          <div className="text-xs text-gray-500">{item.subtitle}</div>
+                        </Link>
+                      ))}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+                <Link 
+                  href="/shop?topSelling=true" 
+                  className="block text-lg hover:text-gray-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  On Sale
+                </Link>
+                <Link 
+                  href="/shop?newArrivals=true" 
+                  className="block text-lg hover:text-gray-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  New Arrivals
+                </Link>
+                <Link 
+                  href="/about" 
+                  className="block text-lg hover:text-gray-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  About
+                </Link>
+              </nav>
             </div>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Search */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <motion.div
+            ref={searchRef}
+            className="absolute left-0 right-0 bg-white shadow-md z-40 lg:hidden"
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -50, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="p-4">
+              <SearchBar onSearch={handleSearch} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

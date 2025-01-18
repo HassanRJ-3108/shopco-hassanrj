@@ -12,7 +12,10 @@ export const productsQuery = groq`
     style->,
     inventory,
     rating,
-    "imageUrl": images[0].asset->url
+    "images": images[].asset->url,
+    colors,
+    sizes,
+    createdAt
   }
 `
 
@@ -51,11 +54,11 @@ export const productQuery = groq`
     price,
     originalPrice,
     rating,
-    reviews,
     description,
     "images": images[].asset->url,
     colors,
     sizes,
+    tags,
     category->,
     style->,
     inventory,
@@ -64,9 +67,6 @@ export const productQuery = groq`
     faqs
   }
 `
-
-
-
 
 // Get all categories
 export const categoriesQuery = groq`
@@ -83,8 +83,7 @@ export const stylesQuery = groq`
   *[_type == "style"] {
     _id,
     name,
-    "slug": slug.current,
-    "imageUrl": image.asset->url
+    "slug": slug.current
   }
 `
 
@@ -94,8 +93,11 @@ export const filterProductsQuery = groq`
     ($category == "all" || category->slug.current == $category) &&
     ($style == "all" || style->slug.current == $style) &&
     price >= $minPrice && 
-    price <= $maxPrice
-  ] {
+    price <= $maxPrice &&
+    rating >= $rating &&
+    ($newArrivals == false || isNewArrival == true) &&
+    ($topSelling == false || isTopSelling == true)
+  ] | order($sortField $sortOrder) {
     _id,
     title,
     price,
@@ -103,6 +105,7 @@ export const filterProductsQuery = groq`
     rating,
     "imageUrl": images[0].asset->url,
     category->,
-    style->
+    style->,
+    createdAt
   }
-` 
+`

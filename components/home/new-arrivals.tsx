@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { integralCF, satoshi } from '@/app/ui/fonts'
 import { client } from '@/sanity/lib/client'
 import { newArrivalsQuery } from '@/sanity/lib/queries'
+
 interface Product {
   id: string
   slug: {
@@ -14,13 +15,9 @@ interface Product {
   originalPrice?: number
   rating: number
   imageUrl: string
-  
 }
 
-
-
 function StarRating({ rating }: { rating: number }) {
-
   const fullStars = Math.floor(rating)
   const hasHalfStar = rating % 1 !== 0
 
@@ -39,13 +36,11 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export default async function NewArrivals() {
-
- const products: Product[] = await client.fetch(newArrivalsQuery)
-console.log(products);
+  const products: Product[] = await client.fetch(newArrivalsQuery)
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-12">
-      <h2 className={` ${integralCF.className} mb-8 text-center text-3xl font-bold tracking-tight`}>NEW ARRIVALS</h2>
+      <h2 className={`${integralCF.className} mb-8 text-center text-3xl font-bold tracking-tight`}>NEW ARRIVALS</h2>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {products.slice(0, 4).map((product) => (
           <Link
@@ -63,7 +58,7 @@ console.log(products);
               />
             </div>
             <div className="mt-4 space-y-2">
-              <h3 className={` ${satoshi.className} font-medium text-gray-900`}>{product.title}</h3>
+              <h3 className={`${satoshi.className} font-medium text-gray-900`}>{product.title}</h3>
               <StarRating rating={product.rating} />
               <div className="flex items-center gap-2">
                 <span className="text-lg font-semibold">${product.price}</span>
@@ -91,4 +86,3 @@ console.log(products);
     </section>
   )
 }
-

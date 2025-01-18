@@ -7,7 +7,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { FAQ } from "@/types/product"
-import { PortableText } from "@/components/portable-text"
 
 interface FAQsTabProps {
   faqs: FAQ[]
@@ -33,7 +32,7 @@ export function FAQsTab({ faqs }: FAQsTabProps) {
             </AccordionTrigger>
             <AccordionContent>
               <div className="pt-4 px-1">
-                <PortableText blocks={faq.answer} />
+                {faq.answer}
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -42,4 +41,3 @@ export function FAQsTab({ faqs }: FAQsTabProps) {
     </div>
   )
 }
-

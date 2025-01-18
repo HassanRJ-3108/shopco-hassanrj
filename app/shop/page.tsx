@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Our Products | SHOP.CO',
     description: 'Explore our wide range of stylish clothing and accessories. Find the perfect outfit that matches your unique style.',
     type: 'website',
-    url: 'https://www.shopco-hassanrj.vercel.app/products',
+    url: 'https://www.shopco-hassanrj.vercel.app/shop',
     images: [
       {
         url: '/images/products-banner.jpg',
@@ -22,12 +22,10 @@ export const metadata: Metadata = {
   },
 }
 
-export default function ProductsPage() {
+export default function ShopPage() {
   return (
-      <Suspense fallback={<div>{<Loader />}</div>}>
-        <ClientProductsGrid />
-      </Suspense>
- 
+    <Suspense fallback={<Loader />}>
+      <ClientProductsGrid />
+    </Suspense>
   )
 }
-

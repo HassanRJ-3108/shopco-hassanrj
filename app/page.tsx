@@ -23,16 +23,7 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  // Manually pass a slug to test
-  const testSlug = 'loose-fit-bermuda-shorts';
-
-  try {
-    console.log('Fetching product data for slug:', testSlug);
-    const product = await client.fetch(productQuery, { slug: testSlug });
-    console.log('Fetched product:', JSON.stringify(product, null, 2));
-  } catch (error) {
-    console.error('Error fetching product:', error);
-  }
+  // Manually pass a slug to tes
 
   return (
     <>

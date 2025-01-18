@@ -1,30 +1,49 @@
 export interface Category {
   _id: string;
   name: string;
+  slug: {
+    current: string;
+  };
+  imageUrl?: string;
 }
 
 export interface Style {
   _id: string;
   name: string;
+  slug: {
+    current: string;
+  };
 }
 
 export interface Color {
+  _id: string;
   name: string;
-  value: string;
 }
 
 export interface FAQ {
   question: string;
-  answer: any[]; // This is of type 'any[]' because it's a Portable Text block
+  answer: string;
+}
+
+export interface Review {
+  _id: string;
+  rating: number;
+  content: string;
+  createdAt: string;
+  isVerified: boolean;
+  customer: {
+    name: string;
+    email: string;
+  };
 }
 
 export interface Product {
   _id: string;
   title: string;
   price: number;
-  originalPrice: number;
+  originalPrice?: number;
   rating: number;
-  reviews: number;
+  reviews: Review[];
   description: string;
   images: string[];
   colors: Color[];
@@ -35,7 +54,11 @@ export interface Product {
   slug: {
     current: string;
   };
-  productDetails: any[]; // This is of type 'any[]' because it's a Portable Text block
+  productDetails: string[];
   faqs: FAQ[];
+  isNewArrival?: boolean;
+  isTopSelling?: boolean;
+  tags?: string[];
+  createdAt: string;
 }
 

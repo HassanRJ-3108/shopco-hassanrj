@@ -11,8 +11,8 @@ interface CartItemProps {
   price: number
   image: string
   quantity: number
-  onUpdateQuantity: (id: string, quantity: number) => void
-  onRemove: (id: string) => void
+  onUpdateQuantity: (quantity: number) => void
+  onRemove: () => void
 }
 
 export function CartItem({
@@ -46,7 +46,7 @@ export function CartItem({
             </div>
           </div>
           <button
-            onClick={() => onRemove(id)}
+            onClick={onRemove}
             className="text-gray-400 hover:text-gray-500"
           >
             <Trash2 className="h-5 w-5" />
@@ -55,7 +55,7 @@ export function CartItem({
         <div className="flex justify-between items-center mt-4">
           <div className="flex items-center border rounded-full">
             <button
-              onClick={() => onUpdateQuantity(id, quantity - 1)}
+              onClick={() => onUpdateQuantity(quantity - 1)}
               disabled={quantity <= 1}
               className="h-8 w-8 flex items-center justify-center text-lg border-r disabled:opacity-50"
             >
@@ -65,7 +65,7 @@ export function CartItem({
               {quantity}
             </span>
             <button
-              onClick={() => onUpdateQuantity(id, quantity + 1)}
+              onClick={() => onUpdateQuantity(quantity + 1)}
               className="h-8 w-8 flex items-center justify-center text-lg border-l"
             >
               +
@@ -77,4 +77,3 @@ export function CartItem({
     </div>
   )
 }
-

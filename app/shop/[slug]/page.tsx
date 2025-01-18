@@ -14,13 +14,10 @@ type ProductPageProps = {
 };
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  console.log('Generating metadata for slug:', params.slug);
   try {
     const product: Product | null = await client.fetch(productQuery, { slug: params.slug });
-    console.log('Metadata product fetch result:', product);
 
     if (!product) {
-      console.log('Product not found for metadata');
       return {
         title: 'Product Not Found',
         description: 'The product you are looking for does not exist.',
@@ -53,14 +50,10 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  console.log('Rendering product page for slug:', params.slug);
   try {
-    console.log('Fetching product data...');
     const product: Product | null = await client.fetch(productQuery, { slug: params.slug });
-    console.log('Fetched product:', JSON.stringify(product, null, 2));
 
     if (!product) {
-      console.log('Product not found, returning 404');
       notFound();
     }
 

@@ -1,9 +1,7 @@
 'use client'
 
-import { PortableText } from "@/components/portable-text"
-
 interface ProductDetailsTabProps {
-  productDetails: any[]
+  productDetails: string[]
 }
 
 export function ProductDetailsTab({ productDetails }: ProductDetailsTabProps) {
@@ -16,9 +14,12 @@ export function ProductDetailsTab({ productDetails }: ProductDetailsTabProps) {
   }
 
   return (
-    <div className="max-w-7xl ">
-      <PortableText blocks={productDetails} />
+    <div className="max-w-7xl">
+      <ul className="list-disc pl-5 space-y-2">
+        {productDetails.map((detail, index) => (
+          <li key={index}>{detail}</li>
+        ))}
+      </ul>
     </div>
   )
 }
-

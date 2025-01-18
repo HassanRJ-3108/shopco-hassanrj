@@ -7,6 +7,9 @@ import { ChevronRight, Minus, Plus, Star, StarHalf } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { satoshi, integralCF } from '@/app/ui/fonts'
 import { Product } from '@/types/product'
+import { useCart } from '@/context/CartContext'
+import { addToCart } from '@/app/actions/Cart'
+import toast from 'react-hot-toast'
 
 function StarRating({ rating }: { rating: number }) {
   const fullStars = Math.floor(rating)
@@ -26,6 +29,8 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
+
+
 interface ProductDetailProps {
   product: Product
 }
@@ -35,8 +40,39 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [selectedColor, setSelectedColor] = useState(product.colors[0])
   const [selectedSize, setSelectedSize] = useState(product.sizes[0])
   const [quantity, setQuantity] = useState(1)
+  const { dispatch, state } = useCart()
 
-  const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+  const discount = product.originalPrice
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0
+
+  const handleAddToCart = () => {
+    const item = {
+      id: product._id,
+      name: product.title,
+      price: product.price,
+      image: product.images[0],
+      color: selectedColor.toString(),
+      size: selectedSize,
+      quantity: quantity
+
+    }
+
+    const existingItem = state.items.find(
+      i => i.id === item.id && i.color === item.color && i.size === item.size
+    )
+
+    if (existingItem) {
+      const newQuantity = existingItem.quantity + quantity
+      if (newQuantity > product.inventory) {
+        toast.error(`Sorry, we only have ${product.inventory} items in stock.`)
+        return
+      }
+    }
+
+    addToCart(dispatch, item)
+    toast.success('Product added to cart!')
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -84,7 +120,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
               ))}
             </div>
           </div>
-
           {/* Product Info */}
           <div className="mt-8 lg:mt-0">
             <h1 className={cn("text-3xl font-bold", integralCF.className)}>
@@ -96,7 +131,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <StarRating rating={product.rating} />
               </div>
               <span className="text-sm text-gray-500">
-                {product.rating}/5 ({product.reviews} Reviews)
+                {product.rating}/5 ({product.reviews?.length || 0} Reviews)
               </span>
             </div>
 
@@ -108,7 +143,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <>
                   <span className={`${satoshi.className} text-sm text-gray-500 line-through`}>${product.originalPrice}</span>
                   <span className="text-sm text-red-600">
-                    -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                    -{discount}%
                   </span>
                 </>
               )}
@@ -127,16 +162,16 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <div className="mt-3 flex gap-3">
                   {product.colors.map((color) => (
                     <button
-                      key={color.name}
+                      key={color.toString()}
                       onClick={() => setSelectedColor(color)}
                       className={cn(
                         "w-8 h-8 rounded-full ring-2 ring-offset-2",
-                        selectedColor.name === color.name
+                        selectedColor === color
                           ? "ring-black"
                           : "ring-transparent hover:ring-gray-300"
                       )}
-                      style={{ backgroundColor: color.value }}
-                      aria-label={color.name}
+                      style={{ backgroundColor: color.toString() }}
+                      aria-label={color.toString()}
                     />
                   ))}
                 </div>
@@ -182,7 +217,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
                     <Plus className="h-4 w-4" />
                   </button>
                 </div>
-                <button className="flex-1 py-3 bg-black text-white rounded-full hover:bg-gray-900 transition-colors">
+                <button
+                  className="flex-1 py-3 bg-black text-white rounded-full hover:bg-gray-900 transition-colors"
+                  onClick={handleAddToCart}
+                >
                   Add to Cart
                 </button>
               </div>
@@ -193,4 +231,3 @@ export function ProductDetail({ product }: ProductDetailProps) {
     </div>
   )
 }
-

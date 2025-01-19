@@ -9,10 +9,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 const reviewSchema = z.object({
-    email: z.string().email('Invalid email address'),
-    phone: z.string().regex(/^03\d{9}$/, 'Invalid phone number'),
-    rating: z.number().min(1).max(5),
-    content: z.string().min(10, 'Review must be at least 10 characters'),
+  productId: z.string(),
+  email: z.string().email(),
+  phone: z.string().regex(/^03\d{9}$/), // Modified to match numbers starting with 03
+  rating: z.number().min(1).max(5),
+  content: z.string().min(10),
+  createdAt: z.string().datetime() // Add this line
 })
 
 type ReviewFormData = z.infer<typeof reviewSchema>

@@ -1,18 +1,20 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@sanity/client'
 import { z } from 'zod'
+import { apiVersion } from '../../../sanity/env'
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
   useCdn: false,
+  apiVersion,
   token: process.env.SANITY_API_TOKEN,
 })
 
 const reviewSchema = z.object({
   productId: z.string(),
   email: z.string().email(),
-  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/),
+  phone: z.string().regex(/^03\d{9}$/), // Modified to match numbers starting with 03
   rating: z.number().min(1).max(5),
   content: z.string().min(10),
   createdAt: z.string().datetime() // Add this line

@@ -8,11 +8,9 @@ import { ProductReviews } from "@/components/product/product-reviews";
 import RelatedProducts from "@/components/product/related-products";
 import { Suspense } from 'react';
 import Loader from '@/components/Loader';
-
 type ProductPageProps = {
   params: { slug: string };
 };
-
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   try {
     const product: Product | null = await client.fetch(productQuery, { slug: params.slug });
@@ -23,7 +21,6 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
         description: 'The product you are looking for does not exist.',
       };
     }
-
     return {
       title: `${product.title} - Shop.co`,
       description: product.description,
@@ -48,7 +45,6 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     };
   }
 }
-
 export default async function ProductPage({ params }: ProductPageProps) {
   try {
     const product: Product | null = await client.fetch(productQuery, { slug: params.slug });
@@ -56,7 +52,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
     if (!product) {
       notFound();
     }
-
     return (
       <Suspense fallback={<div>{<Loader />}</div>}>
         <ProductDetail product={product} />

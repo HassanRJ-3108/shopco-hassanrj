@@ -77,7 +77,7 @@ export default async function TopSelling() {
       </div>
       <div className="mt-8 text-center">
         <Link
-          href="/products"
+          href="/shop?topSelling=true"
           className="inline-block rounded-full border border-gray-300 px-8 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
         >
           View All

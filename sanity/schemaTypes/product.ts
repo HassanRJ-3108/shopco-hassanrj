@@ -139,7 +139,7 @@ export const product = {
         name: 'reviews',
         title: 'Reviews',
         type: 'array',
-        of: [{ type: 'reference', to: [{ type: 'review' }] }],
+        of: [{ type: 'reference', to: [{ type: 'review' }], options: { weak: true } }],
       },
     ]
   }

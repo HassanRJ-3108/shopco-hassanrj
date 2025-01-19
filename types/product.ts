@@ -31,7 +31,7 @@ export interface Review {
   content: string;
   createdAt: string;
   isVerified: boolean;
-  customer: {
+  customer?: {
     name: string;
     email: string;
   };
@@ -43,7 +43,6 @@ export interface Product {
   price: number;
   originalPrice?: number;
   rating: number;
-  reviews: Review[];
   description: string;
   images: string[];
   colors: Color[];
@@ -60,5 +59,6 @@ export interface Product {
   isTopSelling?: boolean;
   tags?: string[];
   createdAt: string;
+  reviews: Review[];
 }
 

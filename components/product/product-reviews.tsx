@@ -10,6 +10,7 @@ import { FAQsTab } from './faqs-tab'
 import { ProductDetailsTab } from './product-details-tab'
 import { Product, Review } from '@/types/product'
 import { ReviewForm } from './ReviewForm'
+import { DeleteReviewForm } from './DeleteReviewForm'
 
 interface ProductReviewsProps {
   product: Product;
@@ -38,6 +39,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
   const [sortOrder, setSortOrder] = useState<'latest' | 'highest' | 'lowest'>('latest')
   const [visibleReviews, setVisibleReviews] = useState(5)
   const [reviews, setReviews] = useState<Review[]>([])
+  const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
 
   useEffect(() => {
     if (product && product._id) {
@@ -80,6 +82,14 @@ export function ProductReviews({ product }: ProductReviewsProps) {
   const handleReviewSubmitted = () => {
     fetchReviews(product._id)
   }
+
+  const handleReviewDeleted = () => {
+    fetchReviews(product._id);
+  }
+
+  const handleDeleteClick = (reviewId: string) => {
+    setDeletingReviewId(reviewId);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12 lg:px-8">
@@ -166,39 +176,46 @@ export function ProductReviews({ product }: ProductReviewsProps) {
             <div className="grid gap-6">
               {sortedReviews.slice(0, visibleReviews).map((review) => (
                 <div key={review._id} className="p-6 border rounded-lg">
-                  <div className="flex items-start justify-between">
+                  {deletingReviewId === review._id ? (
+                    <DeleteReviewForm
+                      reviewId={review._id}
+                      onSuccess={() => {
+                        setDeletingReviewId(null);
+                        fetchReviews(product._id);
+                      }}
+                      onCancel={() => setDeletingReviewId(null)}
+                    />
+                  ) : (
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{review.customer?.name || 'Anonymous'}</span>
-                        {review.isVerified && (
-                          <svg className="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                        )}
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{review.customer?.name || 'Anonymous'}</span>
+                            {review.isVerified && (
+                              <svg className="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </div>
+                          <StarRating rating={review.rating} />
+                        </div>
+                        <button
+                          onClick={() => handleDeleteClick(review._id)}
+                          className="text-sm text-red-600 hover:text-red-800"
+                        >
+                          Delete Review
+                        </button>
                       </div>
-                      <StarRating rating={review.rating} />
+                      <p className="mt-4 text-gray-600">{review.content}</p>
+                      <p className="mt-4 text-sm text-gray-500">
+                        Posted on {new Date(review.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
                     </div>
-                    <DropdownMenu.Root>
-                      <DropdownMenu.Trigger className="p-1 hover:bg-gray-100 rounded-full">
-                        <MoreHorizontal className="h-5 w-5" />
-                      </DropdownMenu.Trigger>
-                      <DropdownMenu.Portal>
-                        <DropdownMenu.Content className="bg-white rounded-lg shadow-lg border p-1 min-w-[150px]">
-                          <DropdownMenu.Item className="flex items-center px-3 py-2 text-sm rounded-md cursor-pointer outline-none hover:bg-gray-50">
-                            Report Review
-                          </DropdownMenu.Item>
-                        </DropdownMenu.Content>
-                      </DropdownMenu.Portal>
-                    </DropdownMenu.Root>
-                  </div>
-                  <p className="mt-4 text-gray-600">{review.content}</p>
-                  <p className="mt-4 text-sm text-gray-500">
-                    Posted on {new Date(review.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </p>
+                  )}
                 </div>
               ))}
             </div>

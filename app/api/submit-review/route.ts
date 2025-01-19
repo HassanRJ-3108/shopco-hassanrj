@@ -15,7 +15,7 @@ const reviewSchema = z.object({
   phone: z.string().regex(/^03\d{9}$/),
   rating: z.number().min(1).max(5),
   content: z.string().min(10),
-  createdAt: z.string().datetime() // Add this line
+  createdAt: z.string().datetime()
 })
 
 export async function POST(req: Request) {
@@ -30,23 +30,23 @@ export async function POST(req: Request) {
     )
 
     if (!customer) {
-      return NextResponse.json({ message: 'You are not a registered customer. Please make a purchase to become a customer.' }, { status: 403 })
+      return NextResponse.json({ message: 'Customer not found. Please check your email and phone number.' }, { status: 403 })
     }
 
     // Create the review
     const review = await client.create({
       _type: 'review',
-      customer: {
-        _type: 'reference',
-        _ref: customer._id,
-      },
       product: {
         _type: 'reference',
         _ref: validatedData.productId,
       },
+      customer: {
+        _type: 'reference',
+        _ref: customer._id,
+      },
       rating: validatedData.rating,
       content: validatedData.content,
-      createdAt: validatedData.createdAt, // Use the provided createdAt
+      createdAt: validatedData.createdAt,
     })
 
     // Add the review reference to the product

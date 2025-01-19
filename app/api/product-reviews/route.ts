@@ -25,12 +25,19 @@ export async function GET(req: Request) {
         createdAt,
         customer-> {
           name,
-          email
+          email,
+          phone
         }
       }
     `, { productId })
 
-    return NextResponse.json(reviews)
+    // Handle potential undefined customer data
+    const processedReviews = reviews.map((review: any) => ({
+      ...review,
+      customer: review.customer || { name: 'Anonymous', email: 'N/A', phone: 'N/A' }
+    }))
+
+    return NextResponse.json(processedReviews)
   } catch (error) {
     console.error('Error fetching reviews:', error)
     return NextResponse.json({ message: 'Error fetching reviews' }, { status: 500 })

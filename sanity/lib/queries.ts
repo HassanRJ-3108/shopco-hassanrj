@@ -1,4 +1,4 @@
-import { groq } from 'next-sanity'
+import { groq } from "next-sanity"
 
 // Get all products with basic info
 export const productsQuery = groq`
@@ -15,7 +15,9 @@ export const productsQuery = groq`
     "images": images[].asset->url,
     colors,
     sizes,
-    createdAt
+    createdAt,
+    isNewArrival,
+    isTopSelling
   }
 `
 
@@ -64,7 +66,9 @@ export const productQuery = groq`
     inventory,
     slug,
     productDetails,
-    faqs
+    faqs,
+    isNewArrival,
+    isTopSelling
   }
 `
 
@@ -106,6 +110,9 @@ export const filterProductsQuery = groq`
     "imageUrl": images[0].asset->url,
     category->,
     style->,
-    createdAt
+    createdAt,
+    isNewArrival,
+    isTopSelling
   }
 `
+

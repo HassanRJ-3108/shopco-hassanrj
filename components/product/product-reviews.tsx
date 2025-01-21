@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import * as Tabs from '@radix-ui/react-tabs'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import { MoreHorizontal, SlidersHorizontal, MessageSquare, Star } from 'lucide-react'
+import { SlidersHorizontal, MessageSquare, Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { satoshi } from '@/app/ui/fonts'
 import { FAQsTab } from './faqs-tab'

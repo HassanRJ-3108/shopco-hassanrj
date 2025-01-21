@@ -8,6 +8,7 @@ import { ProductReviews } from "@/components/product/product-reviews";
 import RelatedProducts from "@/components/product/related-products";
 import { Suspense } from 'react';
 import Loader from '@/components/Loader';
+import { Toaster } from '@/components/ui/toaster';
 type ProductPageProps = {
   params: { slug: string };
 };
@@ -54,6 +55,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     }
     return (
       <Suspense fallback={<div>{<Loader />}</div>}>
+        <Toaster/>
         <ProductDetail product={product} />
         <ProductReviews product={product} />
         <RelatedProducts />

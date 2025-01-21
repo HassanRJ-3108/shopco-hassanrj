@@ -1,9 +1,11 @@
+'use client'
 import { Star, StarHalf } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { integralCF, satoshi } from '@/app/ui/fonts'
 import { client } from '@/sanity/lib/client'
 import { newArrivalsQuery } from '@/sanity/lib/queries'
+import ProductCardSkeleton from '../ProductCardSkeleton'
 
 interface Product {
   id: string
@@ -35,49 +37,63 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
-export default async function NewArrivals() {
-  const products: Product[] = await client.fetch(newArrivalsQuery)
+import { useState, useEffect } from 'react'
+
+export default function NewArrivals() {
+  const [products, setProducts] = useState<Product[] | null>(null)
+
+  useEffect(() => {
+    async function fetchProducts() {
+      const fetchedProducts: Product[] = await client.fetch(newArrivalsQuery)
+      setProducts(fetchedProducts)
+    }
+    fetchProducts()
+  }, [])
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-12">
       <h2 className={`${integralCF.className} mb-8 text-center text-3xl font-bold tracking-tight`}>NEW ARRIVALS</h2>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {products.slice(0, 4).map((product) => (
-          <Link
-            key={product.id}
-            href={`/shop/${product.slug.current}`}
-            className="group rounded-lg bg-gray-50 p-4 transition-transform hover:scale-[1.02]"
-          >
-            <div className="relative aspect-square overflow-hidden rounded-lg bg-white">
-              <Image
-                src={product.imageUrl}
-                alt={product.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-              />
-            </div>
-            <div className="mt-4 space-y-2">
-              <h3 className={`${satoshi.className} font-medium text-gray-900`}>{product.title}</h3>
-              <StarRating rating={product.rating} />
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-semibold">${product.price}</span>
-                {product.originalPrice && (
-                  <>
-                    <span className={`${satoshi.className} text-sm text-gray-500 line-through`}>${product.originalPrice}</span>
-                    <span className="text-sm text-red-600">
-                      -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                    </span>
-                  </>
-                )}
+        {products ? (
+          products.slice(0, 4).map((product) => (
+            <Link
+              key={product.id}
+              href={`/shop/${product.slug.current}`}
+              className="group rounded-lg bg-gray-50 p-4 transition-transform hover:scale-[1.02]"
+            >
+              <div className="relative aspect-square overflow-hidden rounded-lg bg-white">
+                <Image
+                  src={product.imageUrl}
+                  alt={product.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                />
               </div>
-            </div>
-          </Link>
-        ))}
+              <div className="mt-4 space-y-2">
+                <h3 className={`${satoshi.className} font-medium text-gray-900`}>{product.title}</h3>
+                <StarRating rating={product.rating} />
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-semibold">${product.price}</span>
+                  {product.originalPrice && (
+                    <>
+                      <span className={`${satoshi.className} text-sm text-gray-500 line-through`}>${product.originalPrice}</span>
+                      <span className="text-sm text-red-600">
+                        -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </Link>
+          ))
+        ) : (
+          [...Array(4)].map((_, i) => <ProductCardSkeleton key={i} />)
+        )}
       </div>
       <div className="mt-8 text-center">
         <Link
-          href="/shop"
+          href="/shop?newArrivals=true"
           className="inline-block rounded-full border border-gray-300 px-8 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
         >
           View All

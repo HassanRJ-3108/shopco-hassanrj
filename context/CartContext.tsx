@@ -1,42 +1,57 @@
 'use client'
+import type React from "react"
+import { createContext, useContext, useReducer, useEffect } from "react"
+import type { CartItem, CartAction, CartState } from "@/types/cart"
 
-import React, { createContext, useContext, useReducer, useEffect } from 'react'
-import { CartItem, CartAction, CartState } from '@/types/cart'
-
-const CartContext = createContext<{
-  state: CartState;
-  dispatch: React.Dispatch<CartAction>;
-} | undefined>(undefined)
+const CartContext = createContext<
+  | {
+      state: CartState
+      dispatch: React.Dispatch<CartAction>
+    }
+  | undefined
+>(undefined)
 
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
-    case 'ADD_TO_CART':
+    case "ADD_TO_CART":
       const existingItemIndex = state.items.findIndex(
-        item => item.id === action.payload.id && item.size === action.payload.size && item.color === action.payload.color
+        (item) =>
+          item.id === action.payload.id && item.size === action.payload.size && item.color === action.payload.color,
       )
       if (existingItemIndex > -1) {
         const newItems = [...state.items]
-        newItems[existingItemIndex].quantity += action.payload.quantity
+        newItems[existingItemIndex].quantity = Math.min(
+          5,
+          newItems[existingItemIndex].quantity + action.payload.quantity,
+        )
         return { ...state, items: newItems }
       }
-      return { ...state, items: [...state.items, action.payload] }
-    case 'REMOVE_FROM_CART':
       return {
         ...state,
-        items: state.items.filter(item => 
-          !(item.id === action.payload.id && item.size === action.payload.size && item.color === action.payload.color)
-        )
+        items: [...state.items, { ...action.payload, quantity: Math.min(5, action.payload.quantity) }],
       }
-    case 'UPDATE_QUANTITY':
+    case "REMOVE_FROM_CART":
       return {
         ...state,
-        items: state.items.map(item =>
+        items: state.items.filter(
+          (item) =>
+            !(
+              item.id === action.payload.id &&
+              item.size === action.payload.size &&
+              item.color === action.payload.color
+            ),
+        ),
+      }
+    case "UPDATE_QUANTITY":
+      return {
+        ...state,
+        items: state.items.map((item) =>
           item.id === action.payload.id && item.size === action.payload.size && item.color === action.payload.color
-            ? { ...item, quantity: action.payload.quantity }
-            : item
-        )
+            ? { ...item, quantity: Math.min(5, action.payload.quantity) }
+            : item,
+        ),
       }
-    case 'CLEAR_CART':
+    case "CLEAR_CART":
       return { ...state, items: [] }
     default:
       return state
@@ -47,31 +62,32 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [state, dispatch] = useReducer(cartReducer, { items: [] })
 
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart')
+    const savedCart = localStorage.getItem("cart")
     if (savedCart) {
-      dispatch({ type: 'CLEAR_CART' })
+      dispatch({ type: "CLEAR_CART" })
       JSON.parse(savedCart).forEach((item: CartItem) => {
-        dispatch({ type: 'ADD_TO_CART', payload: item })
+        dispatch({ type: "ADD_TO_CART", payload: item })
       })
     }
   }, [])
 
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(state.items))
+    localStorage.setItem("cart", JSON.stringify(state.items))
   }, [state.items])
 
-  return (
-    <CartContext.Provider value={{ state, dispatch }}>
-      {children}
-    </CartContext.Provider>
-  )
+  return <CartContext.Provider value={{ state, dispatch }}>{children}</CartContext.Provider>
 }
 
 export const useCart = () => {
   const context = useContext(CartContext)
   if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider')
+    throw new Error("useCart must be used within a CartProvider")
   }
   return context
+}
+
+export const calculateDiscount = (items: CartItem[]): number => {
+  const uniqueProductCount = new Set(items.map((item) => item.id)).size
+  return uniqueProductCount >= 3 ? 0.1 : 0 // 10% discount if 3 or more unique products
 }
 

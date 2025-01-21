@@ -21,25 +21,6 @@ interface Item {
   size: string;
 }
 
-interface ShippingRate {
-  carrierCode: string;
-  serviceType: string;
-  shippingAmount: {
-    amount: number;
-  };
-  deliveryDays: number;
-  rateId: string;
-}
-
-interface LabelResponse {
-  trackingNumber: string;
-  labelId: string;
-  labelDownload: {
-    pdf: string;
-    png: string;
-  };
-}
-
 interface Order {
   _id?: string;
   _type: 'order';

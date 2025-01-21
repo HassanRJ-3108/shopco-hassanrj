@@ -34,7 +34,7 @@ export function CartPage() {
       <div className="min-h-screen bg-white flex flex-col items-center justify-center">
         <ShoppingBag className="h-24 w-24 text-gray-300 mb-4" />
         <h2 className={cn("text-2xl font-bold mb-2", integralCF.className)}>Your cart is empty</h2>
-        <p className="text-gray-600 mb-8">Looks like you haven't added any items to your cart yet.</p>
+        <p className="text-gray-600 mb-8">Looks like you haven&apos;t added any items to your cart yet.</p>
         <Link 
           href="/shop" 
           className="bg-black text-white px-6 py-3 rounded-full hover:bg-gray-800 transition-colors"

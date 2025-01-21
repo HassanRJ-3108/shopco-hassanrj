@@ -1,10 +1,9 @@
 import { client } from '@/sanity/lib/client'
 import { groq } from 'next-sanity'
 import { notFound } from 'next/navigation'
-import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Package, Truck, CheckCircle2, Clock, PackageCheck, Building2, MapPin, Phone, Mail, DollarSign } from 'lucide-react'
+import { Package, Truck, CheckCircle2, Clock, Building2, MapPin, Phone, Mail } from 'lucide-react'
 
 interface OrderTrackingProps {
   params: {

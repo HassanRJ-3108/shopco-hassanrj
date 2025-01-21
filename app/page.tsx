@@ -5,8 +5,6 @@ import { Hero } from "@/components/home/Hero";
 import NewArrivals from "@/components/home/new-arrivals";
 import Testimonials from "@/components/home/testimonials";
 import TopSelling from "@/components/home/top-selling";
-import { client } from '@/sanity/lib/client';
-import { productQuery } from '@/sanity/lib/queries';
 
 export const metadata: Metadata = {
   title: 'SHOP.CO | Find Clothes That Match Your Style',

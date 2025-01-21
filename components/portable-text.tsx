@@ -1,6 +1,5 @@
 'use client'
-
-interface Block {
+nterface Block {
   _type: string
   style?: string
   children?: any[]

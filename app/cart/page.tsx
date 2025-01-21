@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { CartPage } from '@/components/cart/cart-page'
 import { Suspense } from 'react'
+import Loader from '@/components/Loader'
 
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 export default function ShoppingCartPage() {
   return (
   
-      <Suspense fallback={<div>Loading cart...</div>}>
+      <Suspense fallback={<div><Loader/></div>}>
         <CartPage />
       </Suspense>
       

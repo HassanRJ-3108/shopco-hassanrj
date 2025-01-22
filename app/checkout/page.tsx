@@ -48,7 +48,7 @@ export default function CheckoutPage() {
         totalAmount: state.items.reduce((total, item) => total + item.price * item.quantity, 0),
       }
 
-      const response = await fetch('/api/create-order', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/create-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

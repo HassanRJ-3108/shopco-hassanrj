@@ -41,7 +41,7 @@ export function CheckoutForm() {
     setIsLoading(true)
     try {
       // Get shipping rates
-      const ratesResponse = await fetch('/api/shipengine/get-rates', {
+      const ratesResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/shipengine/get-rates`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -72,7 +72,7 @@ export function CheckoutForm() {
       const selectedRate = ratesData.rateResponse.rates[0]
 
       // Create shipping label
-      const labelResponse = await fetch('/api/shipengine/create-label', {
+      const labelResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/shipengine/create-label`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rateId: selectedRate.rateId }),
@@ -85,7 +85,7 @@ export function CheckoutForm() {
       const labelData = await labelResponse.json()
 
       // Create order in Sanity
-      const orderResponse = await fetch('/api/orders', {
+      const orderResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

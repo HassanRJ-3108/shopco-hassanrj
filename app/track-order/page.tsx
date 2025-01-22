@@ -46,7 +46,7 @@ export default function TrackOrderPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
     try {
-      const response = await fetch('/api/track-orders', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/track-orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

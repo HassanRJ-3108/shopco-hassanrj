@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     // 2. Calculate shipping rates
     const shippingAddress: ShippingAddress = {
       name: customer.name,
-      street: customer.address,
+      addressLine1: customer.address,
       city: customer.city,
       state: customer.state,
       zip: customer.zipCode,

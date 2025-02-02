@@ -6,6 +6,7 @@ export interface OrderItem {
   price: number
   color: string
   size: string
+  image: string
 }
 
 export interface Customer {

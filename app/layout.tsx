@@ -5,6 +5,9 @@ import { inter, integralCF, satoshi } from '@/app/ui/fonts'
 import { ConditionalNavbar, ConditionalFooter } from "@/app/ConditionalNavFooter"
 import { CartProvider } from "@/context/CartContext"
 import { Toaster } from "react-hot-toast"
+import {
+  ClerkProvider,
+} from '@clerk/nextjs'
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,6 +31,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
+    <ClerkProvider>
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -56,6 +60,7 @@ export default function RootLayout({
         </CartProvider>
       </body>
     </html>
+    </ClerkProvider>
   )
 }
 

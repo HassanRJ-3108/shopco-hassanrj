@@ -1,5 +1,72 @@
 import { groq } from "next-sanity"
 
+
+export const userAddressesQuery = groq`
+  *[_type == "customer" && clerkId == $clerkId][0].addresses
+`
+
+
+export const userOrdersQuery = groq`
+  *[_type == "order" && user._ref == $userId] | order(createdAt desc) {
+    _id,
+    orderNumber,
+    createdAt,
+    totalAmount,
+    status,
+    items[]{
+      _key,
+      product->{
+        _id,
+        title,
+        "slug": slug.current,
+        "imageUrl": images[0].asset->url
+      },
+      quantity,
+      price
+    }
+  }
+`
+
+// Get user wishlist
+export const userWishlistQuery = groq`
+  *[_type == "wishlistItem" && user._ref == $userId] {
+    _id,
+    product->{
+      _id,
+      title,
+      price,
+      "slug": slug.current,
+      "imageUrl": images[0].asset->url
+    }
+  }
+`
+
+// Get pending orders
+export const pendingOrdersQuery = groq`
+  *[_type == "order" && user._ref == $userId && status in ["pending", "processing"]] | order(createdAt desc) {
+    _id,
+    orderNumber,
+    createdAt,
+    totalAmount,
+    status,
+    items[]{
+      _key,
+      product->{
+        _id,
+        title,
+        "slug": slug.current,
+        "imageUrl": images[0].asset->url
+      },
+      quantity,
+      price
+    }
+  }
+`
+
+
+
+
+
 // Get all products with basic info
 export const productsQuery = groq`
   *[_type == "product"] {

@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { client } from "@/sanity/lib/client"
+import { auth } from "@clerk/nextjs/server"
+import Stripe from "stripe"
 import {
   getShippingRates,
   createShippingLabel,
@@ -10,99 +12,97 @@ import {
 import type { ShippingAddress, PackageDetails } from "@/types/shipping"
 import type { Order, Customer, OrderItem } from "@/types/order"
 
-export async function POST(req: NextRequest) {
-  try {
-    const { customer, items, totalAmount } = await req.json()
-    console.log("Received order data:", { customer, items, totalAmount })
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-    // 1. Create customer in Sanity
+export async function POST(req: NextRequest) {
+  const { userId } = await auth()
+
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  try {
+    const { paymentIntentId, customer, items, totalAmount } = await req.json()
+
+    // Retrieve the payment intent to get the payment details
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
+
+    if (paymentIntent.status !== "succeeded") {
+      throw new Error("Payment has not been completed")
+    }
+
+    // 1. Create or update customer in Sanity
     let sanityCustomer: Customer
     try {
-      const customerId = `customer_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      sanityCustomer = await client.create({
-        _type: "customer",
-        _id: customerId,
-        name: customer.name,
-        email: customer.email,
-        phone: customer.phone,
-        address: customer.address,
-        city: customer.city,
-        state: customer.state,
-        zipCode: customer.zipCode,
-      })
-      console.log("Created customer in Sanity:", sanityCustomer)
+      const existingCustomer = await client.fetch(`*[_type == "customer" && clerkId == $userId][0]`, { userId })
+      if (existingCustomer) {
+        sanityCustomer = await client
+          .patch(existingCustomer._id)
+          .set({
+            name: customer.name,
+            email: customer.email,
+            phone: customer.phone,
+            address: customer.address,
+            city: customer.city,
+            state: customer.state,
+            zipCode: customer.zipCode,
+          })
+          .commit()
+      } else {
+        sanityCustomer = await client.create({
+          _type: "customer",
+          clerkId: userId,
+          name: customer.name,
+          email: customer.email,
+          phone: customer.phone,
+          address: customer.address,
+          city: customer.city,
+          state: customer.state,
+          zipCode: customer.zipCode,
+        })
+      }
+      console.log("Created/Updated customer in Sanity:", sanityCustomer)
     } catch (error) {
-      console.error("Error creating customer:", error)
-      throw new Error("Failed to create customer in Sanity")
+      console.error("Error creating/updating customer:", error)
+      throw new Error("Failed to create/update customer in Sanity")
     }
 
-    // 2. Prepare shipping address
+    // 2. Calculate shipping rates
     const shippingAddress: ShippingAddress = {
       name: customer.name,
-      phone: customer.phone,
-      addressLine1: customer.address,
-      cityLocality: customer.city,
-      stateProvince: customer.state,
-      postalCode: customer.zipCode,
-      countryCode: "US", // Assuming US, adjust if needed
-      addressResidentialIndicator: "yes",
+      street: customer.address,
+      city: customer.city,
+      state: customer.state,
+      zip: customer.zipCode,
+      country: "US",
     }
-    console.log("Prepared shipping address:", shippingAddress)
-
-    // 3. Calculate package details based on items
     const packageDetails: PackageDetails = {
       weight: {
-        value: items.reduce((total: number, item: OrderItem) => total + item.quantity * 0.5, 0),
+        value: 1,
         unit: "pound",
       },
       dimensions: {
         length: 12,
-        width: 8,
-        height: 6,
+        width: 12,
+        height: 12,
         unit: "inch",
       },
     }
-    console.log("Calculated package details:", packageDetails)
 
-    // 4. Get shipping rates
-    let shippingRates
-    try {
-      shippingRates = await getShippingRates(shippingAddress, [packageDetails])
-      console.log("Got shipping rates:", shippingRates)
-    } catch (error) {
-      console.error("Error getting shipping rates:", error)
-      throw new Error("Failed to get shipping rates")
-    }
+    const rates = await getShippingRates(shippingAddress, [packageDetails])
+    const cheapestRate = rates.sort((a, b) => a.shippingAmount.amount - b.shippingAmount.amount)[0]
 
-    if (!shippingRates.rateResponse.rates?.length) {
-      throw new Error("No shipping rates available")
-    }
+    // 3. Create shipping label
+    const labelResponse = await createShippingLabel(cheapestRate)
 
-    // 5. Select cheapest rate
-    const cheapestRate = shippingRates.rateResponse.rates.reduce((prev, current) =>
-      prev.shippingAmount.amount < current.shippingAmount.amount ? prev : current,
-    )
-    console.log("Selected cheapest rate:", cheapestRate)
+    // 4. Get tracking information
+    const trackingInfo: TrackingInfo = await getShipmentStatus(labelResponse.trackingNumber)
 
-    // 6. Create shipping label
-    let labelResponse
-    try {
-      labelResponse = await createShippingLabel(cheapestRate.rateId)
-      console.log("Created shipping label:", labelResponse)
-    } catch (error) {
-      console.error("Error creating shipping label:", error)
-      throw new Error("Failed to create shipping label")
-    }
+    // 5.  Update customer in Sanity with tracking information (if needed)
 
-    // 7. Get initial shipment status
-    let trackingInfo: TrackingInfo
-    try {
-      trackingInfo = await getShipmentStatus(labelResponse.labelId)
-      console.log("Initial shipment tracking info:", trackingInfo)
-    } catch (error) {
-      console.error("Error getting initial shipment status:", error)
-      throw new Error("Failed to get initial shipment status")
-    }
+    // 6. Create order items in Sanity
+
+    // 7. Update order status in Sanity (if needed)
 
     // 8. Create order in Sanity
     let sanityOrder: Order
@@ -122,8 +122,9 @@ export async function POST(req: NextRequest) {
           color: item.color,
           size: item.size,
         })),
-        totalAmount,
-        status: mapShipEngineStatus(trackingInfo.status_code),
+        totalAmount: paymentIntent.amount / 100, // Convert back to decimal
+        status: mapShipEngineStatus(trackingInfo.status_code) || "paid", // Use ShipEngine status if available, otherwise default to "paid"
+        paymentIntentId: paymentIntent.id,
         shipping: {
           carrier: cheapestRate.carrierCode,
           service: cheapestRate.serviceType,
@@ -151,8 +152,15 @@ export async function POST(req: NextRequest) {
         createdAt: new Date().toISOString(),
       }
       console.log("Attempting to create order with data:", orderData)
-      sanityOrder = await client.create(orderData) as Order
+      sanityOrder = (await client.create(orderData)) as Order
       console.log("Created order in Sanity:", sanityOrder)
+
+      // Add order to customer's pendingDeliveries
+      await client
+        .patch(sanityCustomer._id)
+        .setIfMissing({ pendingDeliveries: [] })
+        .insert("after", "pendingDeliveries[-1]", [{ _type: "reference", _ref: sanityOrder._id }])
+        .commit()
     } catch (error) {
       console.error("Error creating order in Sanity:", error)
       throw new Error("Failed to create order in Sanity")

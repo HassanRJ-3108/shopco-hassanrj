@@ -1,21 +1,17 @@
-'use client'
+"use client"
 
-import { useState, useEffect, useRef } from 'react'
-import Link from 'next/link'
-import { Menu, Search, ShoppingCart, User, X } from 'lucide-react'
-import { integralCF } from '@/app/ui/fonts'
-import { cn } from '@/lib/utils'
-import { useCart } from '@/context/CartContext'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter } from 'next/navigation'
-import { SearchBar } from './SearchBar'
-import { ShopMenu, menuItems } from './ShopMenu'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
+import { useState, useEffect, useRef } from "react"
+import Link from "next/link"
+import { Menu, Search, ShoppingCart, X } from "lucide-react"
+import { integralCF } from "@/app/ui/fonts"
+import { cn } from "@/lib/utils"
+import { useCart } from "@/context/CartContext"
+import { motion, AnimatePresence } from "framer-motion"
+import { useRouter } from "next/navigation"
+import { SearchBar } from "./SearchBar"
+import { ShopMenu, menuItems } from "./ShopMenu"
+import { UserAuthDropdown } from "./UserAuthDropdown"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -42,9 +38,9 @@ export function Navbar() {
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside)
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [isMenuOpen])
 
@@ -57,9 +53,9 @@ export function Navbar() {
     <div className="w-full bg-white shadow-sm">
       {/* Top Banner */}
       <div className="relative bg-black text-white text-center py-3 px-4 text-[10px] md:text-sm">
-        <p className='text-white'>
-          Sign up and get 20% off to your first order.{' '}
-          <Link href="#" className="underline font-medium text-white">
+        <p className="text-white">
+          Sign up and get 20% off to your first order.{" "}
+          <Link href="/sign-up" className="underline font-medium text-white">
             Sign Up Now
           </Link>
         </p>
@@ -80,49 +76,43 @@ export function Navbar() {
             </motion.button>
 
             {/* Logo */}
-            <Link 
-              href="/" 
-              className={cn(
-                "text-xl md:text-2xl font-bold",
-                integralCF.className
-              )}
-            >
+            <Link href="/" className={cn("text-xl md:text-2xl font-bold", integralCF.className)}>
               SHOP.CO
             </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-8">
-              <div 
-                ref={shopMenuRef}
-                className="relative"
-              >
-                <button 
+              <div ref={shopMenuRef} className="relative">
+                <button
                   className="flex items-center hover:text-gray-600 py-8"
                   onClick={() => setIsShopMenuOpen(!isShopMenuOpen)}
                 >
                   Shop
-                  <svg 
-                    className={cn(
-                      "ml-1 h-4 w-4 transition-transform duration-200",
-                      isShopMenuOpen ? "rotate-180" : ""
-                    )} 
+                  <svg
+                    className={cn("ml-1 h-4 w-4 transition-transform duration-200", isShopMenuOpen ? "rotate-180" : "")}
                     viewBox="0 0 24 24"
                   >
-                    <path 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth="2" 
+                    <path
+                      fill="none"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
                       d="M6 9l6 6 6-6"
                     />
                   </svg>
                 </button>
                 {isShopMenuOpen && <ShopMenu />}
               </div>
-              <Link href="/shop?topSelling=true" className="hover:text-gray-600">On Sale</Link>
-              <Link href="/shop?newArrivals=true" className="hover:text-gray-600">New Arrivals</Link>
-              <Link href="/about" className="hover:text-gray-600">About</Link>
+              <Link href="/shop?topSelling=true" className="hover:text-gray-600">
+                On Sale
+              </Link>
+              <Link href="/shop?newArrivals=true" className="hover:text-gray-600">
+                New Arrivals
+              </Link>
+              <Link href="/about" className="hover:text-gray-600">
+                About
+              </Link>
             </nav>
 
             {/* Search Bar - Desktop */}
@@ -143,9 +133,7 @@ export function Navbar() {
                   </span>
                 )}
               </Link>
-              <Link href="#">
-                <User className="h-6 w-6" />
-              </Link>
+              <UserAuthDropdown />
             </div>
           </div>
         </div>
@@ -157,27 +145,21 @@ export function Navbar() {
           <motion.div
             ref={menuRef}
             className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50 lg:hidden"
-            initial={{ x: '-100%' }}
+            initial={{ x: "-100%" }}
             animate={{ x: 0 }}
-            exit={{ x: '-100%' }}
-            transition={{ type: 'tween', duration: 0.3 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "tween", duration: 0.3 }}
           >
             <div className="p-4">
               <div className="flex justify-between items-center mb-8">
-                <Link 
-                  href="/" 
-                  className={cn(
-                    "text-xl font-bold",
-                    integralCF.className
-                  )}
+                <Link
+                  href="/"
+                  className={cn("text-xl font-bold", integralCF.className)}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   SHOP.CO
                 </Link>
-                <button
-                  className="p-2 text-2xl"
-                  onClick={() => setIsMenuOpen(false)}
-                >
+                <button className="p-2 text-2xl" onClick={() => setIsMenuOpen(false)}>
                   <X className="h-6 w-6" />
                 </button>
               </div>
@@ -200,25 +182,21 @@ export function Navbar() {
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
-                <Link 
-                  href="/shop?topSelling=true" 
+                <Link
+                  href="/shop?topSelling=true"
                   className="block text-lg hover:text-gray-600"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   On Sale
                 </Link>
-                <Link 
-                  href="/shop?newArrivals=true" 
+                <Link
+                  href="/shop?newArrivals=true"
                   className="block text-lg hover:text-gray-600"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   New Arrivals
                 </Link>
-                <Link 
-                  href="/about" 
-                  className="block text-lg hover:text-gray-600"
-                  onClick={() => setIsMenuOpen(false)}
-                >
+                <Link href="/about" className="block text-lg hover:text-gray-600" onClick={() => setIsMenuOpen(false)}>
                   About
                 </Link>
               </nav>

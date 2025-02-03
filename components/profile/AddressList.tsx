@@ -73,7 +73,6 @@ export default function AddressList() {
   }
 
   if (isLoading) return <div>Loading addresses...</div>
-  if (error) return <div>Error loading addresses: {error}</div>
 
   return (
     <div className="space-y-6">
@@ -121,4 +120,3 @@ export default function AddressList() {
     </div>
   )
 }
-
